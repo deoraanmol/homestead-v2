@@ -1,4 +1,9 @@
-import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import {
+  createClient,
+  type Session,
+  type SupabaseClient,
+  type User,
+} from "@supabase/supabase-js";
 import type { Listing } from "@/types/listing";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
@@ -7,9 +12,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
 export function isSupabaseConfigured(): boolean {
   return Boolean(
     supabaseUrl &&
-      supabaseAnonKey &&
-      !supabaseUrl.includes("your-project") &&
-      supabaseAnonKey !== "your-anon-key"
+    supabaseAnonKey
   );
 }
 
@@ -18,9 +21,67 @@ let client: SupabaseClient | null = null;
 export function getSupabaseClient(): SupabaseClient | null {
   if (!isSupabaseConfigured()) return null;
   if (!client) {
-    client = createClient(supabaseUrl, supabaseAnonKey);
+    client = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+      },
+    });
   }
   return client;
+}
+
+export type AuthState = {
+  session: Session | null;
+  user: User | null;
+};
+
+export async function getAuthSession(): Promise<AuthState> {
+  const supabase = getSupabaseClient();
+  if (!supabase) return { session: null, user: null };
+
+  const { data, error } = await supabase.auth.getSession();
+  if (error) return { session: null, user: null };
+
+  const session = data.session;
+  return { session, user: session?.user ?? null };
+}
+
+export function onAuthStateChange(
+  callback: (state: AuthState) => void
+): () => void {
+  const supabase = getSupabaseClient();
+  if (!supabase) return () => {};
+
+  const {
+    data: { subscription },
+  } = supabase.auth.onAuthStateChange((_event, session) => {
+    callback({ session, user: session?.user ?? null });
+  });
+
+  return () => subscription.unsubscribe();
+}
+
+export async function signInWithPassword(
+  email: string,
+  password: string
+): Promise<{ error?: string }> {
+  const supabase = getSupabaseClient();
+  if (!supabase) return { error: "Supabase not configured" };
+
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) return { error: error.message };
+  return {};
+}
+
+export async function signOut(): Promise<{ error?: string }> {
+  const supabase = getSupabaseClient();
+  if (!supabase) return { error: "Supabase not configured" };
+
+  const { error } = await supabase.auth.signOut();
+  if (error) return { error: error.message };
+  return {};
 }
 
 export type ListingsResult = {
