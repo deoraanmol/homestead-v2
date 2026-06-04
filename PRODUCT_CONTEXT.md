@@ -4,7 +4,7 @@
 
 **Homestead** is a **real estate portal MVP**: a single-page web app where users browse property listings and admins manage inventory. It is intentionally small—one Next.js app, two “modes” toggled in the header (no real auth yet), and optional Supabase persistence.
 
-**Positioning today:** Demo/prototype quality. Australian-style sample locations in copy and mock data; prices formatted as **USD**. Contact enquiries are **simulated** (no email/API).
+**Positioning today:** Demo/prototype quality. Tricity region (Chandigarh, Mohali, Panchkula) in copy and mock data; prices formatted as **INR**. Contact enquiries are **simulated** (no email/API).
 
 **Goal for the PM:** Define requirements for the **next version** (v2+), knowing what already exists and what is explicitly out of scope.
 
@@ -74,8 +74,8 @@ homestead-v2/
 | `created_at` | optional timestamp | DB default `now()` |
 | `title` | string | Required in admin form |
 | `description` | string | Default `''` |
-| `price` | number | ≥ 0; displayed as USD currency |
-| `location` | string | Free text, e.g. "Byron Bay, NSW" |
+| `price` | number | ≥ 0; displayed as INR currency |
+| `location` | string | Free text, e.g. "Sector 17, Chandigarh" |
 | `bedrooms` | integer | ≥ 0, default 2 in admin form |
 | `bathrooms` | integer | ≥ 0, default 1 in admin form |
 | `image_url` | string | Optional; empty → Unsplash placeholder |
@@ -94,7 +94,7 @@ homestead-v2/
 
 ### 5.1 Portal user (“View as Portal User” — default)
 
-1. **Landing hero** with marketing copy (“Find your next home”, Australia-focused).
+1. **Landing hero** with marketing copy (“Find your next home”, Tricity-focused).
 2. **Filters** (client-side, live as you type):
    - Location: substring match on `location` (case-insensitive)
    - Min / max price: numeric range; empty max = no upper bound
@@ -144,7 +144,7 @@ Adds/deletes respect current `dataSource` (`mock` | `supabase`).
 
 Four sample properties in `src/data/mock-listings.ts`:
 
-- Byron Bay, Bondi, Fitzroy, Paddington (AU locations)
+- Sector 17 Chandigarh, Mohali, Panchkula, Zirakpur (Tricity locations)
 - Prices roughly $620k–$1.15M
 - One listing has **empty** `image_url` to exercise placeholder behavior
 
@@ -159,7 +159,7 @@ Four sample properties in `src/data/mock-listings.ts`:
 - **No pagination**, sorting UI, or map view
 - **No favorites**, saved searches, or user accounts
 - **No server-side validation** beyond HTML `required` / browser types
-- **No i18n**; currency hardcoded **USD** while copy/locations are Australian
+- **No i18n** beyond en-IN INR formatting; region locked to Tricity
 - **No tests** in repo
 - **Public Supabase RLS** — insert/delete open to the world if keys are exposed
 - Search button is **cosmetic** (filters are reactive)

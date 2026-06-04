@@ -30,19 +30,19 @@ create policy "Allow public delete"
 insert into public.listings (title, description, price, location, bedrooms, bathrooms, image_url)
 values
   (
-    'Modern Hillside Retreat',
-    'Sun-drenched contemporary home with floor-to-ceiling windows and a private deck.',
-    875000,
-    'Byron Bay, NSW',
+    'Sector 17 Premium Apartment',
+    'Bright 4 BHK near Elante Mall with modular kitchen and covered parking.',
+    12500000,
+    'Sector 17, Chandigarh',
     4,
     3,
     'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80'
   ),
   (
-    'Coastal Apartment',
-    'Walk to the beach from this bright two-bedroom apartment with ocean glimpses.',
-    620000,
-    'Bondi, NSW',
+    'Mohali Independent Floor',
+    'Spacious 2 BHK independent floor near Phase 7 with 24×7 security.',
+    7500000,
+    'Sector 70, Mohali',
     2,
     2,
     'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&q=80'

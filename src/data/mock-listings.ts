@@ -3,23 +3,23 @@ import type { Listing } from "@/types/listing";
 export const MOCK_LISTINGS: Listing[] = [
   {
     id: "mock-1",
-    title: "Modern Hillside Retreat",
+    title: "Sector 17 Premium Apartment",
     description:
-      "Sun-drenched contemporary home with floor-to-ceiling windows, an open-plan kitchen, and a private deck overlooking native bushland.",
-    price: 875000,
-    location: "Byron Bay, NSW",
+      "Bright 4 BHK with modular kitchen, covered parking, and walking distance to Elante Mall and Sector 17 plaza.",
+    price: 12500000,
+    location: "Sector 17, Chandigarh",
     bedrooms: 4,
     bathrooms: 3,
     image_url:
-      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80",
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80,https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=80,https://images.unsplash.com/photo-1600566753190-17f0baa8a6a3?w=800&q=80",
   },
   {
     id: "mock-2",
-    title: "Coastal Apartment",
+    title: "Mohali Independent Floor",
     description:
-      "Walk to the beach from this bright two-bedroom apartment featuring ocean glimpses, secure parking, and a resort-style pool.",
-    price: 620000,
-    location: "Bondi, NSW",
+      "Spacious 2 BHK independent floor near Phase 7 market, 24×7 security, and quick access to Chandigarh–Mohali highway.",
+    price: 7500000,
+    location: "Sector 70, Mohali",
     bedrooms: 2,
     bathrooms: 2,
     image_url:
@@ -27,23 +27,23 @@ export const MOCK_LISTINGS: Listing[] = [
   },
   {
     id: "mock-3",
-    title: "Heritage Terrace",
+    title: "Panchkula Villa with Garden",
     description:
-      "Restored Victorian terrace with original fireplaces, a north-facing courtyard garden, and easy access to cafes and trams.",
-    price: 1150000,
-    location: "Fitzroy, VIC",
+      "3 BHK villa in a gated society with landscaped garden, servant quarter, and proximity to Pinjore–Kalka road.",
+    price: 18500000,
+    location: "Sector 20, Panchkula",
     bedrooms: 3,
-    bathrooms: 2,
+    bathrooms: 3,
     image_url:
       "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&q=80",
   },
   {
     id: "mock-4",
-    title: "Family Suburban Home",
+    title: "Zirakpur Family Home",
     description:
-      "Spacious brick home on a quiet cul-de-sac with a large backyard, double garage, and close to top-rated schools.",
-    price: 740000,
-    location: "Paddington, QLD",
+      "4 BHK builder floor on a quiet street near VIP Road, double parking, and easy connectivity to Chandigarh airport.",
+    price: 5500000,
+    location: "Zirakpur, Mohali District",
     bedrooms: 4,
     bathrooms: 2,
     image_url: "",

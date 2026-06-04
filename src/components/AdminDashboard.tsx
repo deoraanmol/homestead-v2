@@ -66,7 +66,7 @@ export function AdminDashboard({ listings, onAdd, onDelete }: Props) {
               className={inputClass}
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
-              placeholder="Modern Hillside Retreat"
+              placeholder="Sector 17 Premium Apartment"
               required
             />
           </Field>
@@ -81,14 +81,14 @@ export function AdminDashboard({ listings, onAdd, onDelete }: Props) {
           </Field>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Price (USD)" required>
+            <Field label="Price (INR)" required>
               <input
                 type="number"
                 min={0}
                 className={inputClass}
                 value={form.price || ""}
                 onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
-                placeholder="750000"
+                placeholder="12500000"
                 required
               />
             </Field>
@@ -97,7 +97,7 @@ export function AdminDashboard({ listings, onAdd, onDelete }: Props) {
                 className={inputClass}
                 value={form.location}
                 onChange={(e) => setForm({ ...form, location: e.target.value })}
-                placeholder="Byron Bay, NSW"
+                placeholder="Sector 17, Chandigarh"
                 required
               />
             </Field>

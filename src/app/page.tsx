@@ -5,6 +5,7 @@ import type { User } from "@supabase/supabase-js";
 import { Home, LogOut, Wifi, WifiOff } from "lucide-react";
 import { AdminDashboard } from "@/components/AdminDashboard";
 import { LoginForm } from "@/components/LoginForm";
+import { PortalLoadingState } from "@/components/PortalLoadingState";
 import { PortalView } from "@/components/PortalView";
 import { MOCK_LISTINGS } from "@/data/mock-listings";
 import {
@@ -172,7 +173,7 @@ export default function HomePage() {
               <div>
                 <h1 className="text-lg font-bold tracking-tight text-slate-900">Homestead</h1>
                 <p className="text-xs text-slate-500">
-                  {isAuthenticated ? "Admin" : "Real Estate Portal"}
+                  {isAuthenticated ? "Admin" : "Tricity · Chandigarh Region"}
                 </p>
               </div>
             </div>
@@ -219,9 +220,13 @@ export default function HomePage() {
 
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {appLoading ? (
-          <div className="flex min-h-[40vh] items-center justify-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-600 border-t-transparent" />
-          </div>
+          isAuthenticated ? (
+            <div className="flex min-h-[40vh] items-center justify-center">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-600 border-t-transparent" />
+            </div>
+          ) : (
+            <PortalLoadingState />
+          )
         ) : isAuthenticated ? (
           <AdminDashboard listings={listings} onAdd={handleAdd} onDelete={handleDelete} />
         ) : (

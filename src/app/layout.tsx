@@ -5,8 +5,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "Homestead — Real Estate Portal",
-  description: "Browse and manage property listings",
+  title: "Homestead — Tricity Real Estate",
+  description: "Browse and manage property listings in Chandigarh, Mohali & Panchkula",
 };
 
 export default function RootLayout({
