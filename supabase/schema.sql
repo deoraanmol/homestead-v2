@@ -47,3 +47,34 @@ values
     2,
     'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&q=80'
   );
+
+create table public.profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  role text not null default 'buyer',
+  created_at timestamptz default now()
+);
+
+alter table public.profiles enable row level security;
+
+create policy "Allow public read access"
+  on public.profiles for select
+  using (true);
+
+create policy "Allow public insert"
+  on public.profiles for insert
+  with check (true);
+  
+
+  insert into public.profiles (id, role)
+values
+('297fdd9b-c1dd-4fa3-a654-4e2617a54bfc', 'admin'),
+('18af28cb-bd58-4534-a153-a41629735138', 'admin'),
+('4589a6f4-d892-4eea-9573-b9e498098dbd', 'admin')
+on conflict (id)
+do update set role = excluded.role;
+
+insert into public.profiles (id, role)
+values
+  ('ae96068f-cb15-4b9e-a36b-a68ad726b19b', 'buyer')
+on conflict (id)
+do update set role = excluded.role;

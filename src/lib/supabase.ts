@@ -5,6 +5,7 @@ import {
   type User,
 } from "@supabase/supabase-js";
 import type { Listing } from "@/types/listing";
+import type { UserProfile, UserRole } from "@/types/user";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
@@ -133,6 +134,109 @@ export async function fetchListingsFromSupabase(): Promise<ListingsResult> {
     const message = err instanceof Error ? err.message : "Unknown fetch error";
     return { data: [], source: "mock", error: message };
   }
+}
+
+export async function fetchListingById(id: string): Promise<Listing | null> {
+  const supabase = getSupabaseClient();
+  if (!supabase) return null;
+
+  try {
+    const { data, error } = await supabase
+      .from("listings")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (error || !data) return null;
+    return mapRow(data);
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchUserProfile(userId: string): Promise<UserProfile | null> {
+  const supabase = getSupabaseClient();
+  if (!supabase) return null;
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, role, created_at")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (error || !data) return null;
+  return {
+    id: String(data.id),
+    role: data.role as UserRole,
+    created_at: data.created_at ? String(data.created_at) : undefined,
+  };
+}
+
+export async function ensureUserProfile(userId: string): Promise<UserRole> {
+  const supabase = getSupabaseClient();
+  if (!supabase) return "buyer";
+
+  const existing = await fetchUserProfile(userId);
+  if (existing) return existing.role;
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .insert({ id: userId, role: "buyer" })
+    .select("role")
+    .single();
+
+  if (error) {
+    const retry = await fetchUserProfile(userId);
+    return retry?.role ?? "buyer";
+  }
+
+  return (data.role as UserRole) ?? "buyer";
+}
+
+export async function fetchSavedListingIds(userId: string): Promise<string[]> {
+  const supabase = getSupabaseClient();
+  if (!supabase) return [];
+
+  const { data, error } = await supabase
+    .from("saved_properties")
+    .select("listing_id")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+
+  if (error || !data) return [];
+  return data.map((row) => String(row.listing_id));
+}
+
+export async function saveListingForUser(
+  userId: string,
+  listingId: string
+): Promise<MutationResult> {
+  const supabase = getSupabaseClient();
+  if (!supabase) return { ok: false, error: "Supabase not configured" };
+
+  const { error } = await supabase
+    .from("saved_properties")
+    .upsert({ user_id: userId, listing_id: listingId }, { onConflict: "user_id,listing_id" });
+
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}
+
+export async function unsaveListingForUser(
+  userId: string,
+  listingId: string
+): Promise<MutationResult> {
+  const supabase = getSupabaseClient();
+  if (!supabase) return { ok: false, error: "Supabase not configured" };
+
+  const { error } = await supabase
+    .from("saved_properties")
+    .delete()
+    .eq("user_id", userId)
+    .eq("listing_id", listingId);
+
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
 }
 
 export async function insertListingToSupabase(
