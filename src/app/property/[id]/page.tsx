@@ -1,18 +1,28 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { AppHeader } from "@/components/AppHeader";
 import { PropertyDetailsView } from "@/components/PropertyDetailsView";
 import { resolveListingById } from "@/lib/get-listing";
+import { useAuth } from "@/context/AuthProvider";
 import type { Listing } from "@/types/listing";
 import Link from "next/link";
 
 export default function PropertyPage() {
   const params = useParams();
+  const router = useRouter();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const id = String(params.id ?? "");
   const [listing, setListing] = useState<Listing | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Protect route: redirect unauthenticated users to login
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.replace(`/login?redirect=/property/${id}`);
+    }
+  }, [authLoading, isAuthenticated, id, router]);
 
   useEffect(() => {
     let cancelled = false;
@@ -32,7 +42,11 @@ export default function PropertyPage() {
     <div className="min-h-screen">
       <AppHeader />
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        {loading ? (
+        {authLoading || loading ? (
+          <div className="flex min-h-[50vh] items-center justify-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-600 border-t-transparent" />
+          </div>
+        ) : !isAuthenticated ? (
           <div className="flex min-h-[50vh] items-center justify-center">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-600 border-t-transparent" />
           </div>

@@ -12,21 +12,33 @@ function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") ?? "/buy";
-  const { isAuthenticated, loading, isAdmin } = useAuth();
+  const { isAuthenticated, loading, isAdmin, isBuyer } = useAuth();
 
   useEffect(() => {
     if (!loading && isAuthenticated) {
-      if (isAdmin && redirect.startsWith("/admin")) {
-        router.replace(redirect);
-      } else if (redirect.startsWith("/property/") || redirect === "/saved-properties") {
-        router.replace(redirect);
-      } else if (isAdmin) {
-        router.replace("/admin");
-      } else {
-        router.replace(redirect);
+      // Role-based redirect logic
+      if (isAdmin) {
+        // Admin users go to /admin (unless they're trying to access a specific admin page)
+        if (redirect.startsWith("/admin")) {
+          router.replace(redirect);
+        } else {
+          router.replace("/admin");
+        }
+      } else if (isBuyer) {
+        // Buyer users can access protected routes or default to /buy
+        if (
+          redirect.startsWith("/property/") ||
+          redirect === "/saved-properties" ||
+          redirect === "/buy"
+        ) {
+          router.replace(redirect);
+        } else {
+          // Safety fallback for buyers
+          router.replace("/buy");
+        }
       }
     }
-  }, [loading, isAuthenticated, isAdmin, redirect, router]);
+  }, [loading, isAuthenticated, isAdmin, isBuyer, redirect, router]);
 
   if (loading) {
     return (

@@ -37,7 +37,13 @@ export default function AdminPage() {
   const appLoading = authLoading || listingsLoading;
 
   useEffect(() => {
-    if (!authLoading && isAuthenticated && !isAdmin) {
+    if (authLoading) return;
+    
+    if (!isAuthenticated) {
+      // Redirect unauthenticated users to login
+      router.replace("/login?redirect=/admin");
+    } else if (isAuthenticated && !isAdmin) {
+      // Redirect non-admin authenticated users to buy page
       router.replace("/buy");
     }
   }, [authLoading, isAuthenticated, isAdmin, router]);
