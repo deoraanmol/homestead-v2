@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AppHeader } from "@/components/AppHeader";
@@ -16,7 +16,8 @@ export default function SavedPropertiesPage() {
   const router = useRouter();
   const { isAuthenticated, loading: authLoading } = useAuth();
   const { listings, loading: listingsLoading } = useListings();
-  const { savedIds, loading: savedLoading, toggleSave } = useSavedProperties();
+  const { savedIds, loading: savedLoading, toggleSave, isSaved } = useSavedProperties();
+  const [listingLikeCounts, setListingLikeCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -27,6 +28,29 @@ export default function SavedPropertiesPage() {
   const savedListings = savedIds
     .map((id) => resolveListingByIdSync(id, listings))
     .filter((listing): listing is Listing => listing !== null);
+
+  // Initialize like counts from listings
+  useEffect(() => {
+    const counts: Record<string, number> = {};
+    for (const listing of savedListings) {
+      counts[listing.id] = listing.like_count ?? 0;
+    }
+    setListingLikeCounts(counts);
+  }, [savedListings]);
+
+  const handleToggleSave = useCallback(
+    async (listingId: string) => {
+      const currentlySaved = isSaved(listingId);
+      // Optimistically update like count
+      setListingLikeCounts((prev) => ({
+        ...prev,
+        [listingId]: currentlySaved ? (prev[listingId] ?? 0) - 1 : (prev[listingId] ?? 0) + 1,
+      }));
+      // Execute the actual toggle
+      await toggleSave(listingId);
+    },
+    [isSaved, toggleSave]
+  );
 
   const loading = authLoading || listingsLoading || savedLoading;
 
@@ -74,11 +98,14 @@ export default function SavedPropertiesPage() {
                 listing && (
                   <PropertyCard
                     key={listing.id}
-                    listing={listing}
+                    listing={{
+                      ...listing,
+                      like_count: listingLikeCounts[listing.id] ?? listing.like_count ?? 0,
+                    }}
                     href={`/property/${listing.id}`}
                     saved
                     showSaveButton
-                    onToggleSave={() => toggleSave(listing.id)}
+                    onToggleSave={() => handleToggleSave(listing.id)}
                   />
                 )
             )}

@@ -45,12 +45,15 @@ export function PropertyCard({
               onToggleSave();
             }}
             className={cn(
-              "absolute right-3 top-3 rounded-full p-2 shadow-sm backdrop-blur-sm transition",
-              saved ? "bg-brand-600 text-white" : "bg-white/95 text-slate-600 hover:text-brand-600"
+              "absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-sm shadow-sm backdrop-blur-sm transition",
+              saved ? "bg-brand-600 text-white" : "bg-white/95 text-slate-600 hover:text-brand-600 hover:bg-white"
             )}
             aria-label={saved ? "Remove from saved" : "Save property"}
           >
             <Heart className={cn("h-4 w-4", saved && "fill-current")} />
+            {listing.like_count !== undefined && (
+              <span className="text-xs font-semibold">{listing.like_count}</span>
+            )}
           </button>
         )}
       </div>

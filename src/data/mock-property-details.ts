@@ -1,10 +1,10 @@
 import type { Listing } from "@/types/listing";
 
 export type PropertyAmenities = {
-  school: string;
-  hospital: string;
-  market: string;
-  transport: string;
+  school?: { title: string; distance: string };
+  hospital?: { title: string; distance: string };
+  market?: { title: string; distance: string };
+  transport?: { title: string; distance: string };
 };
 
 export function getAuditorRating(listingId: string): number {
@@ -17,12 +17,30 @@ export function getAuditorRating(listingId: string): number {
 }
 
 export function getNearbyAmenities(listing: Listing): PropertyAmenities {
+  // Read from actual Supabase data if available
+  if (listing.amenities) {
+    return listing.amenities;
+  }
+
+  // Fallback to mock data if amenities not provided
   const seed = listing.bedrooms + listing.bathrooms + listing.location.length;
   return {
-    school: `${(0.4 + (seed % 8) * 0.15).toFixed(1)} km`,
-    hospital: `${(0.8 + (seed % 6) * 0.2).toFixed(1)} km`,
-    market: `${(0.2 + (seed % 5) * 0.1).toFixed(1)} km`,
-    transport: `${(0.3 + (seed % 7) * 0.12).toFixed(1)} km`,
+    school: {
+      title: "Nearby School",
+      distance: `${(0.4 + (seed % 8) * 0.15).toFixed(1)} km`,
+    },
+    hospital: {
+      title: "Nearby Hospital",
+      distance: `${(0.8 + (seed % 6) * 0.2).toFixed(1)} km`,
+    },
+    market: {
+      title: "Nearby Market",
+      distance: `${(0.2 + (seed % 5) * 0.1).toFixed(1)} km`,
+    },
+    transport: {
+      title: "Public Transport",
+      distance: `${(0.3 + (seed % 7) * 0.12).toFixed(1)} km`,
+    },
   };
 }
 

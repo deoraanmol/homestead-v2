@@ -7,6 +7,7 @@ import { PropertyCardSkeleton } from "@/components/PropertyCardSkeleton";
 import { PropertyFilters } from "@/components/PropertyFilters";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
+import { useSavedProperties } from "@/hooks/useSavedProperties";
 import {
   filterListings,
   paginateListings,
@@ -30,6 +31,31 @@ export function BuyListingsView({ listings, loading }: Props) {
   });
   const [page, setPage] = useState(1);
   const { coords, available: geoAvailable } = useGeolocation();
+  const { savedIds, toggleSave, isSaved } = useSavedProperties();
+  const [listingLikeCounts, setListingLikeCounts] = useState<Record<string, number>>({});
+
+  // Initialize like counts from listings
+  useEffect(() => {
+    const counts: Record<string, number> = {};
+    for (const listing of listings) {
+      counts[listing.id] = listing.like_count ?? 0;
+    }
+    setListingLikeCounts(counts);
+  }, [listings]);
+
+  const handleToggleSave = useCallback(
+    async (listingId: string) => {
+      const currentlySaved = isSaved(listingId);
+      // Optimistically update like count
+      setListingLikeCounts((prev) => ({
+        ...prev,
+        [listingId]: currentlySaved ? (prev[listingId] ?? 0) - 1 : (prev[listingId] ?? 0) + 1,
+      }));
+      // Execute the actual toggle
+      await toggleSave(listingId);
+    },
+    [isSaved, toggleSave]
+  );
 
   const hasActiveFilters =
     filters.locationQuery.trim() !== "" ||
@@ -126,8 +152,14 @@ export function BuyListingsView({ listings, loading }: Props) {
               {visible.map((listing) => (
                 <PropertyCard
                   key={listing.id}
-                  listing={listing}
+                  listing={{
+                    ...listing,
+                    like_count: listingLikeCounts[listing.id] ?? listing.like_count ?? 0,
+                  }}
                   href={`/property/${listing.id}`}
+                  saved={isSaved(listing.id)}
+                  showSaveButton
+                  onToggleSave={() => handleToggleSave(listing.id)}
                 />
               ))}
             </div>

@@ -107,6 +107,8 @@ function mapRow(row: Record<string, unknown>): Listing {
     bedrooms: Number(row.bedrooms ?? 0),
     bathrooms: Number(row.bathrooms ?? 0),
     image_url: String(row.image_url ?? ""),
+    amenities: row.amenities ?? {},
+    like_count: Number(row.like_count ?? 0),
   };
 }
 
@@ -126,8 +128,17 @@ export async function fetchListingsFromSupabase(): Promise<ListingsResult> {
       return { data: [], source: "mock", error: error.message };
     }
 
+    const listings = (data ?? []).map(mapRow);
+    const listingIds = listings.map((l) => l.id);
+    const likeCounts = await fetchListingLikeCounts(listingIds);
+
+    const listingsWithLikes = listings.map((listing) => ({
+      ...listing,
+      like_count: likeCounts[listing.id] ?? 0,
+    }));
+
     return {
-      data: (data ?? []).map(mapRow),
+      data: listingsWithLikes,
       source: "supabase",
     };
   } catch (err) {
@@ -146,7 +157,6 @@ export async function fetchListingById(id: string): Promise<Listing | null> {
       .select("*")
       .eq("id", id)
       .maybeSingle();
-
     if (error || !data) return null;
     return mapRow(data);
   } catch {
@@ -237,6 +247,34 @@ export async function unsaveListingForUser(
 
   if (error) return { ok: false, error: error.message };
   return { ok: true };
+}
+
+export async function fetchListingLikeCounts(
+  listingIds: string[]
+): Promise<Record<string, number>> {
+  const supabase = getSupabaseClient();
+  if (!supabase || listingIds.length === 0) return {};
+
+  try {
+    const { data, error } = await supabase
+      .from("saved_properties")
+      .select("listing_id")
+      .in("listing_id", listingIds);
+
+    if (error || !data) return {};
+
+    const counts: Record<string, number> = {};
+    for (const id of listingIds) {
+      counts[id] = 0;
+    }
+    for (const row of data) {
+      const id = String(row.listing_id);
+      counts[id] = (counts[id] ?? 0) + 1;
+    }
+    return counts;
+  } catch {
+    return {};
+  }
 }
 
 export async function insertListingToSupabase(

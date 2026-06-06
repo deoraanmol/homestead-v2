@@ -40,6 +40,7 @@ export function PropertyDetailsView({ listing }: Props) {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [messageOpen, setMessageOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [likeCount, setLikeCount] = useState(listing.like_count ?? 0);
 
   const saved = isSaved(listing.id);
   const auditorRating = getAuditorRating(listing.id);
@@ -54,6 +55,9 @@ export function PropertyDetailsView({ listing }: Props) {
 
   async function handleToggleSave() {
     setSaving(true);
+    const currentlySaved = isSaved(listing.id);
+    // Optimistically update like count
+    setLikeCount((prev) => (currentlySaved ? prev - 1 : prev + 1));
     await toggleSave(listing.id);
     setSaving(false);
   }
@@ -96,6 +100,9 @@ export function PropertyDetailsView({ listing }: Props) {
             >
               <Heart className={cn("h-4 w-4", saved && "fill-current")} />
               {saved ? "Saved" : "Save property"}
+              {likeCount > 0 && (
+                <span className="ml-1 text-xs font-semibold opacity-75">({likeCount})</span>
+              )}
             </button>
           </div>
 
@@ -145,10 +152,10 @@ export function PropertyDetailsView({ listing }: Props) {
             <section className="rounded-2xl bg-slate-50 p-5 ring-1 ring-slate-200">
               <h2 className="text-lg font-semibold text-slate-900">Nearby amenities</h2>
               <ul className="mt-4 space-y-3 text-sm text-slate-600">
-                <AmenityRow icon={<School className="h-4 w-4" />} label="Nearest school" value={amenities.school} />
-                <AmenityRow icon={<Stethoscope className="h-4 w-4" />} label="Nearest hospital" value={amenities.hospital} />
-                <AmenityRow icon={<Store className="h-4 w-4" />} label="Nearest market" value={amenities.market} />
-                <AmenityRow icon={<TrainFront className="h-4 w-4" />} label="Public transport" value={amenities.transport} />
+                {amenities.school && <AmenityRow icon={<School className="h-4 w-4" />} label="Nearest school" value={amenities.school} />}
+                {amenities.hospital && <AmenityRow icon={<Stethoscope className="h-4 w-4" />} label="Nearest hospital" value={amenities.hospital} />}
+                {amenities.market && <AmenityRow icon={<Store className="h-4 w-4" />} label="Nearest market" value={amenities.market} />}
+                {amenities.transport && <AmenityRow icon={<TrainFront className="h-4 w-4" />} label="Public transport" value={amenities.transport} />}
               </ul>
             </section>
 
@@ -207,15 +214,18 @@ function AmenityRow({
 }: {
   icon: React.ReactNode;
   label: string;
-  value: string;
+  value: { title: string; distance: string };
 }) {
   return (
     <li className="flex items-center justify-between gap-3">
       <span className="inline-flex items-center gap-2">
         <span className="text-brand-600">{icon}</span>
-        {label}
+        <div className="flex flex-col">
+          <span className="text-xs uppercase tracking-wide text-slate-500">{label}</span>
+          <span className="text-sm font-medium text-slate-900">{value.title}</span>
+        </div>
       </span>
-      <span className="font-medium text-slate-900">{value}</span>
+      <span className="whitespace-nowrap font-medium text-brand-600">{value.distance}</span>
     </li>
   );
 }
