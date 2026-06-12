@@ -8,6 +8,7 @@ import { resolveListingById } from "@/lib/get-listing";
 import { useAuth } from "@/context/AuthProvider";
 import type { Listing } from "@/types/listing";
 import Link from "next/link";
+import { AppFooter } from "@/components/AppFooter";
 
 export default function PropertyPage() {
   const params = useParams();
@@ -54,6 +55,7 @@ export default function PropertyPage() {
         )}
         
       </main>
+      <AppFooter />
     </div>
   );
 }

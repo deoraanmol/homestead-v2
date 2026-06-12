@@ -11,6 +11,7 @@ import { useListings } from "@/hooks/useListings";
 import { useSavedProperties } from "@/hooks/useSavedProperties";
 import { resolveListingByIdSync } from "@/lib/get-listing";
 import type { Listing } from "@/types/listing";
+import { AppFooter } from "@/components/AppFooter";
 
 export default function SavedPropertiesPage() {
   const router = useRouter();
@@ -67,6 +68,7 @@ export default function SavedPropertiesPage() {
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-emerald border-t-transparent" />
           </div>
         </main>
+        <AppFooter />
       </div>
     );
   }
@@ -118,6 +120,7 @@ export default function SavedPropertiesPage() {
           </div>
         )}
       </main>
+      <AppFooter />
     </div>
   );
 }

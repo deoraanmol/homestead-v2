@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Home, LogOut, User, ChevronDown, Shield, ShoppingBag, Store } from "lucide-react";
@@ -11,7 +11,8 @@ type Props = {
   statusMessage?: string | null;
 };
 
-export function AppHeader({ statusMessage }: Props) {
+// 1. Internal component that contains your original logic and hooks safely
+function AppHeaderContent({ statusMessage }: Props) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { user, isAdmin, isBuyer, isAuthenticated, signOut, loading } = useAuth();
@@ -180,4 +181,13 @@ export function AppHeader({ statusMessage }: Props) {
       </div>
     );
   }
+}
+
+// 2. Main exported component with a Suspense boundary fallback to match your header style
+export function AppHeader(props: Props) {
+  return (
+    <Suspense fallback={<div className="h-16 bg-background/80 border-b border-neutral/10 sticky top-0 z-40 backdrop-blur-md" />}>
+      <AppHeaderContent {...props} />
+    </Suspense>
+  );
 }

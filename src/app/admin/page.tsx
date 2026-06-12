@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Wifi, WifiOff } from "lucide-react";
@@ -85,52 +85,58 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen">
-      <AppHeader statusMessage={statusMessage} />
+     <Suspense fallback={
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-600 border-t-transparent" />
+      </div>
+    }>
+      <div className="min-h-screen">
+        <AppHeader statusMessage={statusMessage} />
 
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">Admin dashboard</h1>
-            <p className="mt-1 text-sm text-slate-500">Manage property listings</p>
+        <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900">Admin dashboard</h1>
+              <p className="mt-1 text-sm text-slate-500">Manage property listings</p>
+            </div>
+            <DataBadge source={dataSource} />
           </div>
-          <DataBadge source={dataSource} />
-        </div>
 
-        {appLoading ? (
-          <div className="flex min-h-[40vh] items-center justify-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-600 border-t-transparent" />
-          </div>
-        ) : !isAuthenticated ? (
-          <div className="mx-auto max-w-md rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-            <h2 className="text-lg font-semibold text-slate-900">Admin sign in</h2>
-            <p className="mt-1 text-sm text-slate-500">
-              Sign in with an admin account to manage listings.
-            </p>
-            {!supabaseReady ? (
-              <p className="mt-4 text-sm text-amber-800">Supabase env vars required.</p>
-            ) : (
-              <div className="mt-4">
-                <LoginForm
-                  layout="stacked"
-                  onError={(msg) => setStatusMessage(msg)}
-                />
-              </div>
-            )}
-            <p className="mt-4 text-center text-sm text-slate-500">
-              <Link href="/buy" className="text-brand-700 hover:underline">
-                Back to listings
-              </Link>
-            </p>
-          </div>
-        ) : isAdmin ? (
-          <AdminDashboard listings={listings} onAdd={handleAdd} onDelete={handleDelete} />
-        ) : (
-          <p className="text-slate-600">Redirecting…</p>
-        )}
-      </main>
-      <AppFooter />
-    </div>
+          {appLoading ? (
+            <div className="flex min-h-[40vh] items-center justify-center">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-600 border-t-transparent" />
+            </div>
+          ) : !isAuthenticated ? (
+            <div className="mx-auto max-w-md rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+              <h2 className="text-lg font-semibold text-slate-900">Admin sign in</h2>
+              <p className="mt-1 text-sm text-slate-500">
+                Sign in with an admin account to manage listings.
+              </p>
+              {!supabaseReady ? (
+                <p className="mt-4 text-sm text-amber-800">Supabase env vars required.</p>
+              ) : (
+                <div className="mt-4">
+                  <LoginForm
+                    layout="stacked"
+                    onError={(msg) => setStatusMessage(msg)}
+                  />
+                </div>
+              )}
+              <p className="mt-4 text-center text-sm text-slate-500">
+                <Link href="/buy" className="text-brand-700 hover:underline">
+                  Back to listings
+                </Link>
+              </p>
+            </div>
+          ) : isAdmin ? (
+            <AdminDashboard listings={listings} onAdd={handleAdd} onDelete={handleDelete} />
+          ) : (
+            <p className="text-slate-600">Redirecting…</p>
+          )}
+        </main>
+        <AppFooter />
+      </div>
+    </Suspense>
   );
 }
 

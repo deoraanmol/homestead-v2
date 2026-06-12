@@ -18,6 +18,7 @@ import {
   getDealerTestimonials,
 } from "@/data/mock-dealers";
 import { MOCK_LISTINGS } from "@/data/mock-listings";
+import { AppFooter } from "@/components/AppFooter";
 
 export default function DealerDetailPage() {
   const params = useParams();
@@ -43,6 +44,7 @@ export default function DealerDetailPage() {
             </Link>
           </div>
         </main>
+        <AppFooter />
       </div>
     );
   }
@@ -174,6 +176,7 @@ export default function DealerDetailPage() {
       {messageOpen && (
         <MessageDealerModal recipientName={dealer.name} onClose={() => setMessageOpen(false)} />
       )}
+      <AppFooter />
     </div>
   );
 }
