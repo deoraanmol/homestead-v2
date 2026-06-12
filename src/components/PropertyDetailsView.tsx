@@ -47,12 +47,6 @@ export function PropertyDetailsView({ listing }: Props) {
   const amenities = getNearbyAmenities(listing);
   const fullSpecs = getFullSpecifications(listing);
 
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.replace(`/login?redirect=${encodeURIComponent(`/property/${listing.id}`)}`);
-    }
-  }, [authLoading, isAuthenticated, listing.id, router]);
-
   async function handleToggleSave() {
     setSaving(true);
     const currentlySaved = isSaved(listing.id);
@@ -60,14 +54,6 @@ export function PropertyDetailsView({ listing }: Props) {
     setLikeCount((prev) => (currentlySaved ? prev - 1 : prev + 1));
     await toggleSave(listing.id);
     setSaving(false);
-  }
-
-  if (authLoading || !isAuthenticated) {
-    return (
-      <div className="flex min-h-[50vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-600 border-t-transparent" />
-      </div>
-    );
   }
 
   return (

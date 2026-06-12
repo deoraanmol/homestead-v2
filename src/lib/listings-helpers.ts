@@ -11,7 +11,6 @@ export function filterListings(listings: Listing[], filters: ListingFilters): Li
   const min = filters.minPrice ? Number(filters.minPrice) : 0;
   const max = filters.maxPrice ? Number(filters.maxPrice) : Infinity;
   const q = filters.locationQuery.trim().toLowerCase();
-
   return listings.filter((listing) => {
     const matchesLocation = !q || listing.location.toLowerCase().includes(q);
     const matchesPrice = listing.price >= min && listing.price <= max;

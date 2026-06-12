@@ -1,5 +1,6 @@
 "use client";
 
+import { AppFooter } from "@/components/AppFooter";
 import { AppHeader } from "@/components/AppHeader";
 import { BuyListingsView } from "@/components/BuyListingsView";
 import { useListings } from "@/hooks/useListings";
@@ -13,6 +14,7 @@ export default function BuyPage() {
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <BuyListingsView listings={listings} loading={loading} />
       </main>
+      <AppFooter />
     </div>
   );
 }

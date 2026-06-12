@@ -317,3 +317,58 @@ export async function deleteListingFromSupabase(
     return { ok: false, error: message };
   }
 }
+
+export async function fetchPopularLocalities(searchTxt?: string): Promise<string[]> {
+  const supabase = getSupabaseClient();
+  
+  // Dynamic universal fallbacks for your primary target market region
+  const fallbacks = [
+    "Sector 17, Chandigarh",
+    "Sector 62, Mohali",
+    "Phase 3B2, Mohali",
+    "Sector 5, Panchkula",
+    "VIP Road, Zirakpur",
+    "New Chandigarh",
+  ];
+
+  if (!supabase) return fallbacks;
+
+  try {
+    // Fetch clean raw location fields from listings
+    const { data, error } = await supabase
+      .from("listings")
+      .select("location");
+
+    if (error || !data) return fallbacks;
+
+    // Compile absolute density frequencies
+    const counts: Record<string, number> = {};
+    data.forEach((item) => {
+      if (!item.location) return;
+      const loc = String(item.location).trim();
+      counts[loc] = (counts[loc] || 0) + 1;
+    });
+
+    // Extract unique entries
+    let uniqueLocations = Object.keys(counts);
+
+    // Filter by text search match if the user started typing
+    if (searchTxt) {
+      const query = searchTxt.trim().toLowerCase();
+      uniqueLocations = uniqueLocations.filter((loc) =>
+        loc.toLowerCase().includes(query)
+      );
+    }
+
+    // Sort descending by calculated property volume density
+    uniqueLocations.sort((a, b) => counts[b] - counts[a]);
+
+    // Slice to premium grid layout display size
+    const results = uniqueLocations.slice(0, 6);
+
+    // Return results, empty array if searching, or general fallbacks if database is brand new
+    return results.length > 0 ? results : searchTxt ? [] : fallbacks;
+  } catch {
+    return fallbacks;
+  }
+}

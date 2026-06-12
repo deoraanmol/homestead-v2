@@ -1,8 +1,9 @@
 "use client";
 
-import { MapPin, Search, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ListingFilters } from "@/lib/listings-helpers";
+import { LocationSelector } from "./LocationSelector";
 
 type Props = {
   filters: ListingFilters;
@@ -26,17 +27,15 @@ export function PropertyFilters({ filters, onChange, variant = "hero" }: Props) 
           : "sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr]"
       )}
     >
+      {/* Patched Location Field Triggering Dialog Modal */}
       <FilterField label="Location">
-        <div className="relative">
-          <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <input
-            className={cn("input-field pl-10", !isHero && "bg-white")}
-            value={filters.locationQuery}
-            onChange={(e) => update("locationQuery", e.target.value)}
-            placeholder="Sector, Mohali, Panchkula…"
-          />
-        </div>
+        <LocationSelector 
+          value={filters.locationQuery} 
+          onChange={(val) => update("locationQuery", val)} 
+          isHero={isHero}
+        />
       </FilterField>
+      
       <FilterField label="Min price">
         <input
           type="number"

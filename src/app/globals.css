@@ -8,7 +8,8 @@
   }
 
   body {
-    @apply bg-slate-50 text-slate-900 antialiased;
+    /* 60% Dominant Color applied globally */
+    @apply bg-background text-neutral-dark antialiased;
   }
 }
 
@@ -18,20 +19,35 @@
   }
 
   .skeleton {
-    @apply animate-pulse bg-slate-200;
+    /* Uses your 30% neutral light gray */
+    @apply animate-pulse bg-neutral-light;
   }
 }
 
 @layer components {
+  /* 10% Accent Rules for Interactive Elements */
   .btn-primary {
-    @apply inline-flex items-center justify-center rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600;
+    @apply inline-flex items-center justify-center rounded-xl 
+          bg-emerald text-white font-medium text-sm
+          px-5 py-2.5 transition-all duration-200 
+          hover:bg-emerald-dark hover:shadow-lg hover:shadow-emerald/10
+          active:scale-[0.98]
+          focus-visible:outline focus-visible:outline-2 
+          focus-visible:outline-offset-2 focus-visible:outline-emerald;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900;
+    @apply inline-flex items-center justify-center rounded-xl 
+          bg-neutral-light text-neutral-dark font-medium text-sm
+          px-5 py-2.5 transition-all duration-200 
+          hover:bg-neutral/10 
+          active:scale-[0.98]
+          focus-visible:outline focus-visible:outline-2 
+          focus-visible:outline-offset-2 focus-visible:outline-neutral;
   }
 
+  /* Form Elements using the 30% Neutrals & 10% Focus Accent */
   .input-field {
-    @apply w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 text-sm text-slate-900 outline-none transition focus:border-brand-500 focus:bg-white focus:ring-2 focus:ring-brand-500/20;
+    @apply w-full rounded-xl border border-neutral/20 bg-neutral-light py-2.5 text-sm text-neutral-dark outline-none transition focus:border-emerald focus:bg-background focus:ring-2 focus:ring-emerald focus:ring-opacity-20;
   }
 }

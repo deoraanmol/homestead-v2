@@ -16,6 +16,7 @@ import {
 } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 import type { DataSource, ListingInput } from "@/types/listing";
+import { AppFooter } from "@/components/AppFooter";
 
 function newLocalId() {
   return `local-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
@@ -128,6 +129,7 @@ export default function AdminPage() {
           <p className="text-slate-600">Redirecting…</p>
         )}
       </main>
+      <AppFooter />
     </div>
   );
 }

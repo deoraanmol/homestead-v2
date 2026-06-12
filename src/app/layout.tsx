@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Providers } from "./providers";
 import "./globals.css";
+import ColorPicker from "./color-picker/ColorPickers";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -15,8 +16,14 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} font-sans`}>
-        <Providers>{children}</Providers>
+      {/* <body className={`${inter.variable} font-sans`}> */}
+      <body className={`${inter.variable} font-sans bg-background text-neutral-dark antialiased`}>
+        <Providers>
+          {children}
+          {/* <div className="fixed bottom-6 right-6 z-50 pointer-events-auto">
+            <ColorPicker />
+          </div> */}
+        </Providers>
       </body>
     </html>
   );

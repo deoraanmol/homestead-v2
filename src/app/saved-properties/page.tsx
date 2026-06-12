@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AppHeader } from "@/components/AppHeader";
@@ -25,11 +25,14 @@ export default function SavedPropertiesPage() {
     }
   }, [authLoading, isAuthenticated, router]);
 
-  const savedListings = savedIds
-    .map((id) => resolveListingByIdSync(id, listings))
-    .filter((listing): listing is Listing => listing !== null);
+  // ✅ FIX: Memoize array reference calculation to stop infinite render loops
+  const savedListings = useMemo(() => {
+    return savedIds
+      .map((id) => resolveListingByIdSync(id, listings))
+      .filter((listing): listing is Listing => listing !== null);
+  }, [savedIds, listings]);
 
-  // Initialize like counts from listings
+  // Initialize like counts cleanly once memoized listings switch addresses
   useEffect(() => {
     const counts: Record<string, number> = {};
     for (const listing of savedListings) {
@@ -56,11 +59,12 @@ export default function SavedPropertiesPage() {
 
   if (authLoading || !isAuthenticated) {
     return (
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-background">
         <AppHeader />
         <main className="mx-auto max-w-7xl px-4 py-8">
           <div className="flex min-h-[40vh] items-center justify-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-600 border-t-transparent" />
+            {/* Swapped border-brand-600 to new 10% Emerald design loop */}
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-emerald border-t-transparent" />
           </div>
         </main>
       </div>
@@ -68,12 +72,13 @@ export default function SavedPropertiesPage() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background">
       <AppHeader />
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">Saved properties</h1>
-          <p className="mt-2 text-sm text-slate-500 sm:text-base">
+          {/* Typography fixed to 30% structural neutral shades */}
+          <h1 className="text-2xl font-bold text-neutral-dark sm:text-3xl">Saved properties</h1>
+          <p className="mt-2 text-sm text-neutral sm:text-base">
             Properties you&apos;ve saved for later in the Tricity.
           </p>
         </div>
@@ -85,8 +90,9 @@ export default function SavedPropertiesPage() {
             ))}
           </div>
         ) : savedListings.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center">
-            <p className="text-slate-600">You haven&apos;t saved any properties yet.</p>
+          /* Empty state matching neutral-light structural styles */
+          <div className="rounded-2xl border border-dashed border-neutral/20 bg-neutral-light/30 p-12 text-center">
+            <p className="text-neutral">You haven&apos;t saved any properties yet.</p>
             <Link href="/buy" className="btn-primary mt-6 inline-flex">
               Browse listings
             </Link>

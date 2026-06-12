@@ -101,7 +101,7 @@ export function BuyListingsView({ listings, loading }: Props) {
             Find your next home
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-emerald-50/95 sm:text-lg">
-            Browse curated homes across Chandigarh, Mohali, Panchkula, and the wider Tricity.
+            Browse curated properties across Chandigarh, Mohali, Panchkula, and the wider Tricity.
           </p>
           <PropertyFilters filters={filters} onChange={setFilters} variant="hero" />
         </div>
@@ -111,18 +111,14 @@ export function BuyListingsView({ listings, loading }: Props) {
         <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h3 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-              Available properties
+              Found for you
             </h3>
             <p className="mt-2 text-sm text-slate-500 sm:text-base">
               {loading
                 ? "Loading listings…"
                 : listings.length === 0
                   ? "Check back soon for new listings."
-                  : `${processed.length} of ${listings.length} ${
-                      listings.length === 1 ? "property" : "properties"
-                    }${hasActiveFilters ? " match your filters" : ""}${
-                      geoAvailable ? " · sorted by proximity" : ""
-                    }`}
+                  : `Showing ${processed.length} ${listings.length === 1 ? "property" : "properties"} that match your search context`}
             </p>
           </div>
           {hasActiveFilters && listings.length > 0 && (
