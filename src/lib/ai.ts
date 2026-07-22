@@ -1,6 +1,6 @@
 "use server";
 
-import { Listing } from "@/types"; // Use your actual Listing import path
+import { Listing } from "@/types/listing";
 import { getSupabaseClient, getSupabaseServiceClient } from "./supabase";
 import { revalidatePath } from "next/cache";
 

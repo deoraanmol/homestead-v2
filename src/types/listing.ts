@@ -24,7 +24,7 @@ export interface Listing {
   like_count?: number;
   property_type: string;
   property_type_id: string;
-  aiCrux: string;
+  aiCrux?: string;
 }
 
 export type ListingInput = Omit<Listing, "id" | "created_at" | "like_count" | "property_type">;

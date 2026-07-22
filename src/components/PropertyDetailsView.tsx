@@ -153,7 +153,7 @@ export function PropertyDetailsView({ listing }: Props) {
               </div>
             </div>
 
-            {listing.aiCrux.trim() && (
+            {listing.aiCrux?.trim() && (
               <div className="mt-4 border-b border-slate-100 pb-4">
                 <p 
                   className={cn(
@@ -164,7 +164,7 @@ export function PropertyDetailsView({ listing }: Props) {
                 >
                   {listing.aiCrux}
                 </p>
-                {listing.aiCrux.length > 120 && (
+                {listing.aiCrux?.length > 120 && (
                   <button
                     type="button"
                     onClick={() => setIsDescExpanded(!isDescExpanded)}
