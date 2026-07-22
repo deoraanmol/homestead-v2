@@ -10,12 +10,27 @@ const TRICITY_COORDS: Record<string, GeoCoords> = {
   zirakpur: { lat: 30.6426, lng: 76.8173 },
 };
 
+// Cache for location coordinates from Nominatim or other sources
+const locationCache: Map<string, GeoCoords> = new Map();
+
 export function getCoordsForLocation(text: string): GeoCoords {
+  // Check cache first
+  const cached = locationCache.get(text.toLowerCase());
+  if (cached) return cached;
+
+  // Fallback to city-based matching
   const lower = text.toLowerCase();
   if (lower.includes("zirakpur")) return TRICITY_COORDS.zirakpur;
   if (lower.includes("mohali")) return TRICITY_COORDS.mohali;
   if (lower.includes("panchkula")) return TRICITY_COORDS.panchkula;
   return TRICITY_COORDS.chandigarh;
+}
+
+/**
+ * Cache coordinates for a location (called after Nominatim lookup)
+ */
+export function setCoordsForLocation(locationName: string, coords: GeoCoords): void {
+  locationCache.set(locationName.toLowerCase(), coords);
 }
 
 export function distanceKm(a: GeoCoords, b: GeoCoords): number {

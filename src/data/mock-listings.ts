@@ -12,6 +12,8 @@ export const MOCK_LISTINGS: Listing[] = [
     bathrooms: 3,
     image_url:
       "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80,https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=80,https://images.unsplash.com/photo-1600566753190-17f0baa8a6a3?w=800&q=80",
+    property_type_id: "flat",
+    property_type: "Flat / Apartment",
   },
   {
     id: "mock-2",
@@ -24,6 +26,8 @@ export const MOCK_LISTINGS: Listing[] = [
     bathrooms: 2,
     image_url:
       "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&q=80",
+    property_type_id: "independent_floor",
+    property_type: "Independent Floor",
   },
   {
     id: "mock-3",
@@ -36,6 +40,8 @@ export const MOCK_LISTINGS: Listing[] = [
     bathrooms: 3,
     image_url:
       "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&q=80",
+    property_type_id: "villa",
+    property_type: "Villa",
   },
   {
     id: "mock-4",
@@ -47,5 +53,7 @@ export const MOCK_LISTINGS: Listing[] = [
     bedrooms: 4,
     bathrooms: 2,
     image_url: "",
+    property_type_id: "house",
+    property_type: "House",
   },
 ];

@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
+import { PROPERTY_TYPE_OPTIONS } from "@/data/property-types";
 import { formatPrice } from "@/lib/utils";
 import type { Listing, ListingInput } from "@/types/listing";
 
@@ -13,6 +14,7 @@ const EMPTY_FORM: ListingInput = {
   bedrooms: 2,
   bathrooms: 1,
   image_url: "",
+  property_type_id: "flat",
 };
 
 type Props = {
@@ -124,6 +126,21 @@ export function AdminDashboard({ listings, onAdd, onDelete }: Props) {
             </Field>
           </div>
 
+          <Field label="Property type" required>
+            <select
+              className={inputClass}
+              value={form.property_type_id}
+              onChange={(e) => setForm({ ...form, property_type_id: e.target.value })}
+              required
+            >
+              {PROPERTY_TYPE_OPTIONS.map((opt) => (
+                <option key={opt.id} value={opt.id}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </Field>
+
           <Field label="Image URL">
             <input
               className={inputClass}
@@ -163,6 +180,7 @@ export function AdminDashboard({ listings, onAdd, onDelete }: Props) {
               <thead>
                 <tr className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500">
                   <th className="pb-3 pr-4 font-medium">Property</th>
+                  <th className="pb-3 pr-4 font-medium">Type</th>
                   <th className="pb-3 pr-4 font-medium">Location</th>
                   <th className="pb-3 pr-4 font-medium">Price</th>
                   <th className="pb-3 pr-4 font-medium">Beds/Baths</th>
@@ -173,6 +191,7 @@ export function AdminDashboard({ listings, onAdd, onDelete }: Props) {
                 {listings.map((listing) => (
                   <tr key={listing.id} className="border-b border-slate-100 last:border-0">
                     <td className="py-4 pr-4 font-medium text-slate-900">{listing.title}</td>
+                    <td className="py-4 pr-4 text-slate-600">{listing.property_type}</td>
                     <td className="py-4 pr-4 text-slate-600">{listing.location}</td>
                     <td className="py-4 pr-4 font-medium text-brand-700">
                       {formatPrice(listing.price)}

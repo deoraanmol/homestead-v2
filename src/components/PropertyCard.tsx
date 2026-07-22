@@ -77,6 +77,9 @@ export function PropertyCard({
           </p>
 
           <div className="mt-4 flex flex-wrap gap-2">
+            {listing.property_type && (
+              <Tag label={listing.property_type} />
+            )}
             <Tag icon={<BedDouble className="h-3.5 w-3.5" />} label={`${listing.bedrooms} Beds`} />
             <Tag icon={<Bath className="h-3.5 w-3.5" />} label={`${listing.bathrooms} Baths`} />
           </div>
@@ -123,7 +126,7 @@ export function PropertyCard({
   );
 }
 
-function Tag({ icon, label }: { icon: React.ReactNode; label: string }) {
+function Tag({ icon, label }: { icon?: React.ReactNode; label: string }) {
   return (
     <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600">
       {icon}

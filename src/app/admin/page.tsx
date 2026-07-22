@@ -16,6 +16,7 @@ import {
 } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 import type { DataSource, ListingInput } from "@/types/listing";
+import { getPropertyTypeLabel } from "@/data/property-types";
 import { AppFooter } from "@/components/AppFooter";
 
 function newLocalId() {
@@ -63,7 +64,14 @@ export default function AdminPage() {
       return;
     }
 
-    setListings((prev) => [{ id: newLocalId(), ...input }, ...prev]);
+    setListings((prev) => [
+      {
+        id: newLocalId(),
+        ...input,
+        property_type: getPropertyTypeLabel(input.property_type_id),
+      },
+      ...prev,
+    ]);
     setStatusMessage("Listing added locally (mock mode).");
   }
 

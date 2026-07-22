@@ -22,8 +22,10 @@ export interface Listing {
   image_url: string;
   amenities?: AmenitiesData;
   like_count?: number;
+  property_type: string;
+  property_type_id: string;
 }
 
-export type ListingInput = Omit<Listing, "id" | "created_at">;
+export type ListingInput = Omit<Listing, "id" | "created_at" | "like_count" | "property_type">;
 
 export type DataSource = "supabase" | "mock";

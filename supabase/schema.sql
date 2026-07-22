@@ -78,3 +78,74 @@ values
   ('ae96068f-cb15-4b9e-a36b-a68ad726b19b', 'buyer')
 on conflict (id)
 do update set role = excluded.role;
+
+
+-- Create locations reference table
+create table if not exists public.locations (
+  id uuid primary key default gen_random_uuid(),
+  city text not null,
+  locality text not null,
+  sector text,
+  latitude numeric(9,6) not null,
+  longitude numeric(9,6) not null,
+  display_name text not null, -- "Sector 60, Chandigarh" format
+  created_at timestamptz default now(),
+  unique(city, locality, sector)
+);
+
+alter table public.locations enable row level security;
+
+create policy "Allow public read"
+  on public.locations for select using (true);
+
+-- Create index for faster searches
+create index if not exists locations_city_idx on public.locations(city);
+create index if not exists locations_display_name_idx on public.locations using gin(to_tsvector('english', display_name));
+
+-- Seed initial data for Tricity
+insert into public.locations (city, locality, sector, latitude, longitude, display_name)
+values
+  ('Chandigarh', 'Sector 17', 'Sector 17', 30.7333, 76.7794, 'Sector 17, Chandigarh'),
+  ('Chandigarh', 'Sector 35', 'Sector 35', 30.7260, 76.7945, 'Sector 35, Chandigarh'),
+  ('Chandigarh', 'Sector 60', 'Sector 60', 30.6833, 76.7567, 'Sector 60, Chandigarh'),
+  ('Mohali', 'Phase 3B2', 'Phase 3B2', 30.7050, 76.7180, 'Phase 3B2, Mohali'),
+  ('Mohali', 'Sector 70', 'Sector 70', 30.6900, 76.7200, 'Sector 70, Mohali'),
+  ('Panchkula', 'Sector 5', 'Sector 5', 30.6943, 76.8606, 'Sector 5, Panchkula'),
+  ('Zirakpur', 'VIP Road', NULL, 30.6426, 76.8173, 'VIP Road, Zirakpur')
+on conflict do nothing;
+
+-- Add location_id reference to listings (optional, for normalization)
+alter table public.listings add column location_id uuid references public.locations(id);
+alter table public.listings add column latitude numeric(9,6);
+alter table public.listings add column longitude numeric(9,6);
+
+-- Create index for proximity queries
+create index if not exists listings_coords_idx on public.listings(latitude, longitude);
+
+create table if not exists public.property_types (
+  id text primary key,               -- 'flat', 'agri_land', 'villa' etc. (used for filtering)
+  label text not null,               -- 'Flat / Apartment', 'Agricultural Land' (used for UI dropdowns)
+  is_active boolean default true,     -- Allows admins to easily disable a type without deleting data
+  created_at timestamptz default now()
+);
+alter table public.property_types enable row level security;
+create policy "Allow public read access" 
+  on public.property_types for select using (true);
+
+insert into public.property_types (id, label)
+values
+  ('unknown', 'Unknown'),
+  ('flat', 'Flat / Apartment'),
+  ('house', 'House'),
+  ('independent_floor', 'Independent Floor'),
+  ('residential_plot', 'Residential Plot'),
+  ('villa', 'Villa'),
+  ('commercial', 'Commercial Property'),
+  ('agri_land', 'Agricultural Land')
+on conflict (id) do update set label = excluded.label;
+
+alter table public.listings 
+add column property_type_id text not null default 'unknown' 
+references public.property_types(id) on delete set default;
+
+create index if not exists listings_property_type_idx on public.listings(property_type_id);
