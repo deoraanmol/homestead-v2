@@ -69,6 +69,7 @@ The project already includes `.npmrc` pointing at the public npm registry.
    ```env
    NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+   NEXT_GROQ_API_KEY=your-groq-api-key
    ```
 
 4. Restart the dev server:

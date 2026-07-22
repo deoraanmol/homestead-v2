@@ -14,6 +14,8 @@ import {
   Stethoscope,
   Store,
   TrainFront,
+  Image as ImageIcon, 
+  Map as MapIcon
 } from "lucide-react";
 import { MessageDealerModal } from "@/components/MessageDealerModal";
 import { PropertyGallery } from "@/components/PropertyGallery";
@@ -26,12 +28,16 @@ import {
   getNearbyAmenities,
   MOCK_DEALER_PHONE,
 } from "@/data/mock-property-details";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn, formatPropertyPrice } from "@/lib/utils";
 import type { Listing } from "@/types/listing";
 
 type Props = {
   listing: Listing;
 };
+
+// Mock coordinate and summary logic (or pull from listing object extensions)
+const FIELD_BOY_LAT = 30.7333;
+const FIELD_BOY_LNG = 76.7794;
 
 export function PropertyDetailsView({ listing }: Props) {
   const router = useRouter();
@@ -41,6 +47,8 @@ export function PropertyDetailsView({ listing }: Props) {
   const [messageOpen, setMessageOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [likeCount, setLikeCount] = useState(listing.like_count ?? 0);
+  const [mediaMode, setMediaMode] = useState<"photos" | "satellite">("photos");
+  const [isDescExpanded, setIsDescExpanded] = useState(false);
 
   const saved = isSaved(listing.id);
   const auditorRating = getAuditorRating(listing.id);
@@ -59,61 +67,134 @@ export function PropertyDetailsView({ listing }: Props) {
   return (
     <>
       <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
-        <PropertyGallery imageUrl={listing.image_url} title={listing.title} />
-
-        <div className="border-b border-slate-100 bg-slate-50/80 px-5 py-6 sm:px-8">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <p className="text-2xl font-bold tracking-tight text-brand-700 sm:text-3xl">
-                {formatPrice(listing.price)}
-              </p>
-              <h1 className="mt-2 text-2xl font-bold text-slate-900 sm:text-3xl">{listing.title}</h1>
-              <p className="mt-2 flex items-center gap-1.5 text-slate-600">
-                <MapPin className="h-4 w-4 shrink-0 text-brand-600" />
-                {listing.location}
-              </p>
+        <div className="grid grid-cols-1 lg:grid-cols-[7fr_3fr] border-b border-slate-200 bg-slate-900 min-h-[420px]">
+          {/* --- LEFT CONTAINER (70%): Media Viewer --- */}
+          <div className="relative w-full h-[320px] lg:h-full bg-slate-950 overflow-hidden flex flex-col justify-between">
+            <div className="w-full h-full relative">
+              {mediaMode === "photos" ? (
+                <PropertyGallery imageUrl={listing.image_url} title={listing.title} />
+              ) : (
+                <div className="w-full h-full bg-slate-800 relative">
+                  <iframe
+                      title="Google Top View Satellite Map"
+                      className="w-full h-full border-none opacity-90"
+                      loading="lazy"
+                      allowFullScreen
+                      src="https://google.com"
+                    />
+                  <div className="absolute top-3 left-3 bg-slate-900/90 text-xs px-2 py-1 rounded text-emerald-400 font-mono tracking-wide z-10">
+                    Lat: {FIELD_BOY_LAT} | Lng: {FIELD_BOY_LNG}
+                  </div>
+                </div>
+              )}
             </div>
-            <button
-              type="button"
-              onClick={handleToggleSave}
-              disabled={saving}
-              className={cn(
-                "inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold ring-1 transition",
-                saved
-                  ? "bg-brand-600 text-white ring-brand-600"
-                  : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"
-              )}
-            >
-              <Heart className={cn("h-4 w-4", saved && "fill-current")} />
-              {saved ? "Saved" : "Save property"}
-              {likeCount > 0 && (
-                <span className="ml-1 text-xs font-semibold opacity-75">({likeCount})</span>
-              )}
-            </button>
+            <div className="absolute bottom-4 left-4 flex gap-2 z-20">
+              <button
+                type="button"
+                onClick={() => setMediaMode("photos")}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold backdrop-blur transition-all",
+                  mediaMode === "photos" 
+                    ? "bg-white text-slate-900 shadow-md scale-105" 
+                    : "bg-slate-900/80 text-slate-300 hover:bg-slate-900"
+                )}
+              >
+                <ImageIcon className="h-3.5 w-3.5" />
+                Photos
+              </button>
+              <button
+                type="button"
+                onClick={() => setMediaMode("satellite")}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold backdrop-blur transition-all",
+                  mediaMode === "satellite" 
+                    ? "bg-white text-slate-900 shadow-md scale-105" 
+                    : "bg-slate-900/80 text-slate-300 hover:bg-slate-900"
+                )}
+              >
+                <MapIcon className="h-3.5 w-3.5" />
+                Google Top View
+              </button>
+              <button
+                type="button"
+                onClick={handleToggleSave}
+                disabled={saving}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold backdrop-blur transition-all disabled:opacity-50 disabled:cursor-not-allowed",
+                  saved
+                    ? "bg-emerald-600 text-white shadow-md scale-105 font-bold"
+                    : "bg-slate-900/80 text-slate-300 hover:bg-slate-900"
+                )}
+              >
+                <Heart className={cn("h-3.5 w-3.5 transition-colors", saved ? "fill-white text-white" : "text-slate-300 group-hover:text-white")} />
+                <span>{saved ? "Saved" : "Save property"}</span>
+                {likeCount > 0 && (
+                  <span className={cn("ml-0.5 text-[10px] opacity-80 font-mono", saved ? "text-emerald-100" : "text-slate-400")}>
+                    ({likeCount})
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
+          {/* --- RIGHT CONTAINER (30%): Property Details --- */}
+          <div className="border-b border-slate-100 bg-slate-50/80 px-5 py-6 sm:px-8">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div className="flex flex-col gap-2">
+                <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl leading-snug">
+                  {listing.title}
+                </h1>
+                <p className="flex items-center gap-1.5 text-sm font-medium text-slate-500 sm:text-base">
+                  <MapPin className="h-4 w-4 shrink-0 text-emerald-600" />
+                  {listing.location}                  
+                </p>
+                <p className="mt-1 text-sm font-extrabold tracking-tight text-slate-600 sm:text-base">
+                  Listed for {formatPropertyPrice(listing.price)}
+                </p>
+              </div>
+            </div>
 
-          <div className="mt-5 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">
-            <SpecCard icon={<BedDouble className="h-4 w-4 text-brand-600" />} label="Bedrooms" value={String(listing.bedrooms)} />
-            <SpecCard icon={<Bath className="h-4 w-4 text-brand-600" />} label="Bathrooms" value={String(listing.bathrooms)} />
+            {listing.aiCrux.trim() && (
+              <div className="mt-4 border-b border-slate-100 pb-4">
+                <p 
+                  className={cn(
+                    "text-sm leading-relaxed text-slate-600 transition-all",
+                    // Clamps text to 3 lines cleanly when collapsed
+                    !isDescExpanded && "line-clamp-3"
+                  )}
+                >
+                  {listing.aiCrux}
+                </p>
+                {listing.aiCrux.length > 120 && (
+                  <button
+                    type="button"
+                    onClick={() => setIsDescExpanded(!isDescExpanded)}
+                    className="mt-1 text-xs font-bold text-emerald-600 hover:text-emerald-700 hover:underline transition"
+                  >
+                    {isDescExpanded ? "Read less" : "Read more..."}
+                  </button>
+                )}
+              </div>
+            )}
+            <div className="mt-4 flex items-center justify-between rounded-xl bg-slate-50 p-3 ring-1 ring-slate-200/60">
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  Auditor Rating
+                </span>
+              </div>
+              <div className="flex items-center gap-2 bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-sm">
+                <StarRating rating={auditorRating} showValue={false} size="sm" />
+                <span className="text-sm font-bold text-slate-800">{auditorRating.toFixed(1)}</span>
+              </div>
+            </div>
           </div>
-
-          {listing.description.trim() && (
-            <p className="mt-5 text-sm leading-relaxed text-slate-600 sm:text-base">
-              {listing.description}
-            </p>
-          )}
         </div>
 
         <div className="grid gap-6 px-5 py-6 sm:px-8 lg:grid-cols-3">
           <div className="space-y-6 lg:col-span-2">
-            <section className="rounded-2xl bg-white p-5 ring-1 ring-slate-200">
-              <h2 className="text-lg font-semibold text-slate-900">Auditor rating</h2>
-              <div className="mt-3 flex items-center gap-3">
-                <StarRating rating={auditorRating} showValue size="lg" />
-                <span className="text-sm text-slate-500">Independent property audit (mock)</span>
-              </div>
-            </section>
-
+          <div className="mt-5 grid grid-cols-5 gap-3">
+              <SpecCard icon={<BedDouble className="h-4 w-4 text-emerald-600" />} label="Bedrooms" value={String(listing.bedrooms)} />
+              <SpecCard icon={<Bath className="h-4 w-4 text-emerald-600" />} label="Bathrooms" value={String(listing.bathrooms)} />
+            </div>
             <section className="overflow-hidden rounded-2xl ring-1 ring-slate-200">
               <button
                 type="button"

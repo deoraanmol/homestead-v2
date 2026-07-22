@@ -149,3 +149,5 @@ add column property_type_id text not null default 'unknown'
 references public.property_types(id) on delete set default;
 
 create index if not exists listings_property_type_idx on public.listings(property_type_id);
+ALTER TABLE public.listings
+ADD COLUMN IF NOT EXISTS ai_crux TEXT DEFAULT '';

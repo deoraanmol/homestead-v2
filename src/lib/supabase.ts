@@ -9,6 +9,10 @@ import type { UserProfile, UserRole } from "@/types/user";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+const supabaseServiceRoleKey =
+  process.env.SUPABASE_SERVICE_ROLE_KEY ??
+  process.env.NEXT_SUPABASE_SERVICE_ROLE_KEY ??
+  "";
 
 export function isSupabaseConfigured(): boolean {
   return Boolean(
@@ -18,6 +22,7 @@ export function isSupabaseConfigured(): boolean {
 }
 
 let client: SupabaseClient | null = null;
+let serviceClient: SupabaseClient | null = null;
 
 export function getSupabaseClient(): SupabaseClient | null {
   if (!isSupabaseConfigured()) return null;
@@ -31,6 +36,20 @@ export function getSupabaseClient(): SupabaseClient | null {
     });
   }
   return client;
+}
+
+export function getSupabaseServiceClient(): SupabaseClient | null {
+  if (!supabaseUrl || !supabaseServiceRoleKey) return null;
+  if (!serviceClient) {
+    serviceClient = createClient(supabaseUrl, supabaseServiceRoleKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+      },
+    });
+  }
+  return serviceClient;
 }
 
 export type AuthState = {
@@ -131,6 +150,7 @@ function mapRow(row: Record<string, unknown>): Listing {
     like_count: Number(row.like_count ?? 0),
     property_type: String(derivedLabel),
     property_type_id: propertyTypeId,
+    aiCrux: String(row.ai_crux ?? "")
   };
 }
 
@@ -199,7 +219,8 @@ export async function fetchListingById(id: string): Promise<Listing | null> {
       .eq("id", id)
       .maybeSingle();
     if (error || !data) return null;
-    return mapRow(data);
+    const listing = mapRow(data);
+    return listing;
   } catch {
     return null;
   }

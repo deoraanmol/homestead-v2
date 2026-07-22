@@ -16,6 +16,28 @@ export function formatPrice(price: number): string {
   }).format(price);
 }
 
+export function formatPropertyPrice(priceStr: string | number): string {
+  const value = typeof priceStr === "string" ? parseFloat(priceStr.replace(/\D/g, "")) : priceStr;
+  if (!value || isNaN(value)) return "Price on Request";
+
+  // Convert to Crores (e.g., 2,50,00,000 -> ₹2.5 Cr)
+  if (value >= 10000000) {
+    return `₹${(value / 10000000).toFixed(2).replace(/\.00$/, "")} Cr`;
+  }
+  
+  // Convert to Lakhs (e.g., 25,00,000 -> ₹25 Lakh)
+  if (value >= 100000) {
+    return `₹${(value / 100000).toFixed(2).replace(/\.00$/, "")} Lakh`;
+  }
+
+  // Fallback for smaller values using the native Indian numbering standard
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
 export function listingImage(url: string | null | undefined): string {
   const images = listingGalleryImages(url);
   return images[0] ?? PLACEHOLDER_IMAGE;
