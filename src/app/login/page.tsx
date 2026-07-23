@@ -117,7 +117,10 @@ function LoginContent() {
             <div className="mt-8">
               <LoginForm
                 layout="stacked"
-                onSuccess={() => router.replace(redirect)}
+                onSuccess={() => {
+                  // Role-based navigation is handled by the auth effect below once
+                  // the user's role has been resolved from the backend.
+                }}
               />
             </div>
           )}

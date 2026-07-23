@@ -151,3 +151,56 @@ references public.property_types(id) on delete set default;
 create index if not exists listings_property_type_idx on public.listings(property_type_id);
 ALTER TABLE public.listings
 ADD COLUMN IF NOT EXISTS ai_crux TEXT DEFAULT '';
+
+-- =========================================================================
+-- 1. DATABASE SCHEMA UPDATE
+-- Add an array column to your listings table to hold multiple image URLs
+-- =========================================================================
+ALTER TABLE public.listings 
+ADD COLUMN IF NOT EXISTS image_urls text[] DEFAULT '{}'::text[];
+
+
+-- =========================================================================
+-- 2. STORAGE BUCKET CREATION
+-- Inserts a new public storage bucket specifically for listing images
+-- =========================================================================
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('listing-images', 'listing-images', true)
+ON CONFLICT (id) DO NOTHING;
+
+
+-- =========================================================================
+-- 3. STORAGE SECURITY POLICIES (RLS)
+-- Lock down storage using your profiles table to verify admin privileges
+-- =========================================================================
+
+-- Policy A: Allow anyone (the general public) to view and download listing images
+CREATE POLICY "Allow public read access"
+ON storage.objects FOR SELECT
+USING (bucket_id = 'listing-images');
+
+-- Policy B: Allow only logged-in users with the 'admin' role to upload images
+CREATE POLICY "Allow only admins to upload"
+ON storage.objects FOR INSERT
+TO authenticated
+WITH CHECK (
+  bucket_id = 'listing-images' AND
+  EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE public.profiles.id = auth.uid()
+    AND public.profiles.role = 'admin'
+  )
+);
+
+-- Policy C: Allow only logged-in users with the 'admin' role to delete images
+CREATE POLICY "Allow only admins to delete"
+ON storage.objects FOR DELETE
+TO authenticated
+USING (
+  bucket_id = 'listing-images' AND
+  EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE public.profiles.id = auth.uid()
+    AND public.profiles.role = 'admin'
+  )
+);

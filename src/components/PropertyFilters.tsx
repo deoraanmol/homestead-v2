@@ -6,6 +6,7 @@ import type { ListingFilters } from "@/lib/listings-helpers";
 import { PROPERTY_TYPE_OPTIONS } from "@/data/property-types";
 import { LocationSelector } from "./LocationSelector";
 import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 
 type Props = {
   filters: ListingFilters;
@@ -58,6 +59,14 @@ const propertyTypeRef = useRef<HTMLDivElement>(null);
   const maxRef = useRef<HTMLDivElement>(null);
   const [selectedMinPrice, setSelectedMinPrice] = useState<string | null>(null);
   const [selectedMaxPrice, setSelectedMaxPrice] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const listingCity = searchParams.get("listingCity");
+    if (listingCity) {
+      onChange({ ...filters, locationQuery: listingCity });
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -79,7 +88,7 @@ const propertyTypeRef = useRef<HTMLDivElement>(null);
   const fields = (
     <div
       className={cn(
-        "grid gap-4 w-full min-w-0",
+        "grid gap-4 w-full min-w-0 overflow-visible",
         isHero
           ? "sm:grid-cols-2 lg:grid-cols-[1.4fr_1.1fr_1fr_1fr_auto] lg:items-end"
           : "sm:grid-cols-2 lg:grid-cols-[1.4fr_1.1fr_1fr_1fr]"
@@ -95,7 +104,7 @@ const propertyTypeRef = useRef<HTMLDivElement>(null);
       </FilterField>
 
       <FilterField label="Property type" className="min-w-0 w-full">
-        <div ref={propertyTypeRef} className="relative w-full z-20">
+        <div ref={propertyTypeRef} className="relative w-full z-50">
           <button
             type="button"
             onClick={() => setPropertyTypeDropdownOpen(!propertyTypeDropdownOpen)}
@@ -157,14 +166,14 @@ const propertyTypeRef = useRef<HTMLDivElement>(null);
       </FilterField>
       
       <FilterField label="Min price" className="min-w-0 w-full">
-      <div ref={minRef} className="relative w-full z-20">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400 pointer-events-none select-none z-10">
+      <div ref={minRef} className="relative w-full z-10">
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400 pointer-events-none select-none">
           ₹
         </span>
         <input
           type="text"
           className={cn(
-            "input-field pl-7 pr-3 w-full transition-all relative z-10", 
+            "input-field pl-7 pr-3 w-full transition-all", 
             !isHero && "bg-white",
             filters.minPrice && "pb-4 pt-1"
           )}
@@ -205,14 +214,14 @@ const propertyTypeRef = useRef<HTMLDivElement>(null);
 
       {/* Improved Max Price Field with Dropdown Overlay */}
       <FilterField label="Max price" className="min-w-0 w-full">
-        <div ref={maxRef} className="relative w-full z-20">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400 pointer-events-none select-none z-10">
+        <div ref={maxRef} className="relative w-full z-5">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400 pointer-events-none select-none">
             ₹
           </span>
           <input
             type="text"
             className={cn(
-              "input-field pl-6 pr-3 w-full transition-all relative z-10", 
+              "input-field pl-6 pr-3 w-full transition-all", 
               !isHero && "bg-white",
               filters.maxPrice && "pb-4 pt-1"
             )}
@@ -296,11 +305,11 @@ function FilterField({
   className?: string; 
 }) {
   return (
-    <label className={cn("block min-w-0 w-full", className)}>
+    <div className={cn("block min-w-0 w-full", className)}>
       <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
         {label}
       </span>
       {children}
-    </label>
+    </div>
   );
 }

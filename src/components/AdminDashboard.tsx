@@ -5,6 +5,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { PROPERTY_TYPE_OPTIONS } from "@/data/property-types";
 import { formatPrice } from "@/lib/utils";
 import type { Listing, ListingInput } from "@/types/listing";
+import { getSupabaseClient } from "@/lib/supabase";
 
 const EMPTY_FORM: ListingInput = {
   title: "",
@@ -14,6 +15,7 @@ const EMPTY_FORM: ListingInput = {
   bedrooms: 2,
   bathrooms: 1,
   image_url: "",
+  image_urls: [],
   property_type_id: "flat",
 };
 
@@ -27,6 +29,45 @@ export function AdminDashboard({ listings, onAdd, onDelete }: Props) {
   const [form, setForm] = useState<ListingInput>(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [images, setImages] = useState<File[]>([]);
+  const [uploadingImages, setUploadingImages] = useState(false);
+
+  async function uploadImages() {
+  const supabase = getSupabaseClient();
+
+  if (!supabase || images.length === 0) {
+    return [];
+  }
+
+  setUploadingImages(true);
+
+  try {
+    const urls: string[] = [];
+
+    for (const file of images) {
+      const filename = `${crypto.randomUUID()}-${file.name}`;
+
+      const { error } = await supabase.storage
+        .from("listing-images")
+        .upload(filename, file);
+
+      if (error) {
+        throw error;
+      }
+
+      const { data } = supabase.storage
+        .from("listing-images")
+        .getPublicUrl(filename);
+
+      urls.push(data.publicUrl);
+    }
+
+    return urls;
+
+  } finally {
+    setUploadingImages(false);
+  }
+}
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -34,12 +75,14 @@ export function AdminDashboard({ listings, onAdd, onDelete }: Props) {
 
     setSubmitting(true);
     try {
+      const uploadedImages = await uploadImages();
       await onAdd({
         ...form,
         title: form.title.trim(),
         description: form.description.trim(),
         location: form.location.trim(),
         image_url: form.image_url.trim(),
+        image_urls: uploadedImages,
       });
       setForm(EMPTY_FORM);
     } finally {
@@ -140,21 +183,29 @@ export function AdminDashboard({ listings, onAdd, onDelete }: Props) {
               ))}
             </select>
           </Field>
-
-          <Field label="Image URL">
+          <Field label="Property Photos">
             <input
+              type="file"
+              multiple
+              accept="image/*"
               className={inputClass}
-              value={form.image_url}
-              onChange={(e) => setForm({ ...form, image_url: e.target.value })}
-              placeholder="https://images.unsplash.com/..."
+              onChange={(e)=>{
+                if(e.target.files){
+                  setImages(Array.from(e.target.files));
+                }
+              }}
             />
-            <p className="mt-1 text-xs text-slate-400">Leave empty to use a placeholder image.</p>
+
+            <p className="mt-1 text-xs text-slate-400">
+              Upload multiple photos. First photo becomes the main image.
+            </p>
+
           </Field>
 
           <button
             type="submit"
             disabled={submitting}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-60"
+            className="inline-flex w-full items-center justify-center gap-1.5 rounded-xl bg-emerald-700 px-4 py-3.5 text-center text-sm font-bold text-white shadow-lg shadow-emerald-700/10 transition-all outline-none hover:bg-emerald-800 disabled:opacity-60"
           >
             <Plus className="h-4 w-4" />
             {submitting ? "Adding..." : "Add Listing"}

@@ -20,6 +20,7 @@ export interface Listing {
   bedrooms: number;
   bathrooms: number;
   image_url: string;
+  image_urls?: string[];
   amenities?: AmenitiesData;
   like_count?: number;
   property_type: string;

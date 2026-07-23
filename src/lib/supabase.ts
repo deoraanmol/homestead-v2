@@ -146,6 +146,7 @@ function mapRow(row: Record<string, unknown>): Listing {
     bedrooms: Number(row.bedrooms ?? 0),
     bathrooms: Number(row.bathrooms ?? 0),
     image_url: String(row.image_url ?? ""),
+    image_urls: Array.isArray(row.image_urls) ? row.image_urls.map(String) : [],
     amenities: row.amenities ?? {},
     like_count: Number(row.like_count ?? 0),
     property_type: String(derivedLabel),
@@ -358,6 +359,7 @@ export async function insertListingToSupabase(
         bedrooms: listing.bedrooms,
         bathrooms: listing.bathrooms,
         image_url: listing.image_url,
+        image_urls: listing.image_urls ?? [],
         amenities: listing.amenities ?? {},
         property_type_id: listing.property_type_id || "unknown",
       })

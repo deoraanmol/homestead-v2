@@ -7,16 +7,17 @@ export function AppFooter() {
   const currentYear = new Date().getFullYear();
 
   const quickLinks = [
-    { label: "Chandigarh Properties", href: "/buy?city=Chandigarh" },
-    { label: "Mohali Listings", href: "/buy?city=Mohali" },
-    { label: "Panchkula Spaces", href: "/buy?city=Panchkula" },
-    { label: "Zirakpur Hubs", href: "/buy?city=Zirakpur" },
+    { label: "Chandigarh Properties", href: "/buy?listingCity=Chandigarh" },
+    { label: "Mohali Listings", href: "/buy?listingCity=Mohali" },
+    { label: "Panchkula Spaces", href: "/buy?listingCity=Panchkula" },
+    { label: "Zirakpur Hubs", href: "/buy?listingCity=Zirakpur" },
   ];
 
   const legalLinks = [
     { label: "Privacy Policy", href: "/privacy" },
     { label: "Terms of Service", href: "/terms" },
-    { label: "RERA Disclaimer", href: "/rera-info" },
+    { label: "RERA Punjab", href: "http://rera.punjab.gov.in/" },
+    { label: "RERA Haryana", href: "https://haryanarera.gov.in/" },
   ];
 
   return (
@@ -71,10 +72,10 @@ export function AppFooter() {
               <li className="flex items-center gap-2 text-sm text-slate-500">
                 <Phone className="h-4 w-4 text-emerald-700" />
                 <a
-                  href="tel:+911720000000"
+                  href="tel:+91 98788 64275"
                   className="transition-colors hover:text-slate-900"
                 >
-                  +91 172 400 0000
+                  +91 98788 64275
                 </a>
               </li>
 
@@ -102,6 +103,7 @@ export function AppFooter() {
                 key={link.label}
                 href={link.href}
                 className="text-sm text-slate-400 transition-colors hover:text-slate-600"
+                target={link.href.startsWith("http") ? "_blank" : "_self"}
               >
                 {link.label}
               </Link>

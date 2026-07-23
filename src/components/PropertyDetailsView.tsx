@@ -15,7 +15,9 @@ import {
   Store,
   TrainFront,
   Image as ImageIcon, 
-  Map as MapIcon
+  Map as MapIcon,
+  Share2,
+  Home
 } from "lucide-react";
 import { MessageDealerModal } from "@/components/MessageDealerModal";
 import { PropertyGallery } from "@/components/PropertyGallery";
@@ -30,6 +32,7 @@ import {
 } from "@/data/mock-property-details";
 import { cn, formatPropertyPrice } from "@/lib/utils";
 import type { Listing } from "@/types/listing";
+import { PropertyDetailsContactAgent } from "./PropertyDetailsContactAgent";
 
 type Props = {
   listing: Listing;
@@ -66,13 +69,29 @@ export function PropertyDetailsView({ listing }: Props) {
 
   return (
     <>
+      <div className="mb-4">
+          <Link
+            href="/buy"
+            className="
+              inline-flex
+              items-center
+              gap-1.5
+              text-sm
+              font-medium
+              text-slate-600
+              transition
+              hover:text-emerald-700
+            "
+          >
+            ← Back to listings
+          </Link>
+      </div>
       <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
-        <div className="grid grid-cols-1 lg:grid-cols-[7fr_3fr] border-b border-slate-200 bg-slate-900 min-h-[420px]">
-          {/* --- LEFT CONTAINER (70%): Media Viewer --- */}
-          <div className="relative w-full h-[320px] lg:h-full bg-slate-950 overflow-hidden flex flex-col justify-between">
+        <div className="border-b border-slate-200 bg-slate-900 min-h-[420px]">
+          <div className="relative w-full min-h-[420px] bg-slate-950 overflow-hidden flex flex-col justify-between">
             <div className="w-full h-full relative">
               {mediaMode === "photos" ? (
-                <PropertyGallery imageUrl={listing.image_url} title={listing.title} />
+                <PropertyGallery imageUrls={listing.image_urls} title={listing.title} />
               ) : (
                 <div className="w-full h-full bg-slate-800 relative">
                   <iframe
@@ -137,7 +156,7 @@ export function PropertyDetailsView({ listing }: Props) {
             </div>
           </div>
           {/* --- RIGHT CONTAINER (30%): Property Details --- */}
-          <div className="border-b border-slate-100 bg-slate-50/80 px-5 py-6 sm:px-8">
+          {/* <div className="border-b border-slate-100 bg-slate-50/80 px-5 py-6 sm:px-8">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="flex flex-col gap-2">
                 <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl leading-snug">
@@ -186,26 +205,145 @@ export function PropertyDetailsView({ listing }: Props) {
                 <span className="text-sm font-bold text-slate-800">{auditorRating.toFixed(1)}</span>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
 
-        <div className="grid gap-6 px-5 py-6 sm:px-8 lg:grid-cols-3">
-          <div className="space-y-6 lg:col-span-2">
-          <div className="mt-5 grid grid-cols-5 gap-3">
-              <SpecCard icon={<BedDouble className="h-4 w-4 text-emerald-600" />} label="Bedrooms" value={String(listing.bedrooms)} />
-              <SpecCard icon={<Bath className="h-4 w-4 text-emerald-600" />} label="Bathrooms" value={String(listing.bathrooms)} />
+        <div className="grid gap-8 px-5 py-6 sm:px-8 lg:grid-cols-[7fr_3fr]">
+          {/* LEFT CONTENT */}
+          <div className="space-y-6">
+
+            <div className="flex flex-col gap-2">
+              <div className="flex items-start justify-between gap-4">
+                <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl leading-snug">
+                  {listing.title}
+                </h1>
+
+                <div className="flex shrink-0 items-center gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.share?.({
+                        title: listing.title,
+                        text: `Check out this property: ${listing.title}`,
+                        url: window.location.href,
+                      });
+                    }}
+                    className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+                  >
+                    <Share2 className="h-4 w-4" />
+                    Share
+                  </button>
+
+                  <button
+                    type="button"
+                    className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+                  >
+                    <Heart className="h-4 w-4" />
+                    Save
+                  </button>
+                </div>
+              </div>
+
+              <p className="flex items-center gap-1.5 text-sm font-medium text-slate-500 sm:text-base">
+                <MapPin className="h-4 w-4 shrink-0 text-emerald-600" />
+                {listing.location}
+              </p>
+
+              <p className="mt-1 text-lg font-extrabold tracking-tight text-slate-700">
+                Listed for {formatPropertyPrice(listing.price)}
+              </p>
             </div>
+
+
+            {/* Beds / Baths */}
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-slate-600">
+
+              <div className="flex items-center gap-2">
+                <BedDouble className="h-5 w-5 text-slate-500" />
+                <span className="font-semibold text-slate-900">
+                  {listing.bedrooms}
+                </span>
+                <span>bed</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Bath className="h-5 w-5 text-slate-500" />
+                <span className="font-semibold text-slate-900">
+                  {listing.bathrooms}
+                </span>
+                <span>bath</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Home className="h-5 w-5 text-slate-500" />
+                <span className="font-medium text-slate-900">
+                  {listing.property_type}
+                </span>
+              </div>
+
+            </div>
+
+            {/* AI Overview */}
+              {listing.aiCrux?.trim() && (
+                <section className="mb-5 rounded-2xl border border-emerald-100 bg-emerald-50/40 p-5">
+                  <div className="mb-3 flex items-center gap-2">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-600 text-white">
+                      ✨
+                    </div>
+                    <h3 className="text-sm font-semibold text-slate-900">
+                      AI property overview
+                    </h3>
+                  </div>
+
+                  <p
+                    className={cn(
+                      "text-sm leading-relaxed text-slate-600 transition-all sm:text-base",
+                      !isDescExpanded && "line-clamp-3"
+                    )}
+                  >
+                    {listing.aiCrux}
+                  </p>
+
+                  {listing.aiCrux.length > 120 && (
+                    <button
+                      type="button"
+                      onClick={() => setIsDescExpanded(!isDescExpanded)}
+                      className="mt-3 text-xs font-semibold text-emerald-700 transition hover:text-emerald-800 hover:underline"
+                    >
+                      {isDescExpanded ? "Show less" : "Read more"}
+                    </button>
+                  )}
+                </section>
+              )}
+
+
+            {/* Full specifications */}
             <section className="overflow-hidden rounded-2xl ring-1 ring-slate-200">
               <button
                 type="button"
                 onClick={() => setDetailsOpen((o) => !o)}
                 className="flex w-full items-center justify-between bg-white px-5 py-4 text-left hover:bg-slate-50"
-                aria-expanded={detailsOpen}
               >
-                <span className="font-semibold text-slate-900">View full specifications</span>
-                <ChevronDown className={cn("h-5 w-5 text-slate-400 transition", detailsOpen && "rotate-180")} />
+                <span className="font-semibold text-slate-900">
+                  View full specifications
+                </span>
+
+                <ChevronDown
+                  className={cn(
+                    "h-5 w-5 text-slate-400 transition",
+                    detailsOpen && "rotate-180"
+                  )}
+                />
               </button>
-              <div className={cn("grid transition-[grid-template-rows] duration-200", detailsOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]")}>
+
+              <div
+                className={cn(
+                  "grid transition-[grid-template-rows] duration-200",
+                  detailsOpen
+                    ? "grid-rows-[1fr]"
+                    : "grid-rows-[0fr]"
+                )}
+              >
                 <div className="overflow-hidden">
                   <p className="border-t border-slate-100 px-5 pb-5 pt-3 text-sm leading-relaxed text-slate-600 sm:text-base">
                     {fullSpecs}
@@ -213,37 +351,59 @@ export function PropertyDetailsView({ listing }: Props) {
                 </div>
               </div>
             </section>
-          </div>
 
-          <div className="space-y-6">
+          </div>
+          {/* RIGHT SIDEBAR */}
+          <aside className="space-y-6">
+            <div className="space-y-6">
+              <PropertyDetailsContactAgent
+                agentName="Rahul Sharma"
+                agencyName="Prime Property Group"
+                location="Chandigarh, Punjab"
+                phone={MOCK_DEALER_PHONE}
+                onMessage={() => setMessageOpen(true)}
+              />
+            </div>
             <section className="rounded-2xl bg-slate-50 p-5 ring-1 ring-slate-200">
-              <h2 className="text-lg font-semibold text-slate-900">Nearby amenities</h2>
+              <h2 className="text-lg font-semibold text-slate-900">
+                Nearby amenities
+              </h2>
+
               <ul className="mt-4 space-y-3 text-sm text-slate-600">
-                {amenities.school && <AmenityRow icon={<School className="h-4 w-4" />} label="Nearest school" value={amenities.school} />}
-                {amenities.hospital && <AmenityRow icon={<Stethoscope className="h-4 w-4" />} label="Nearest hospital" value={amenities.hospital} />}
-                {amenities.market && <AmenityRow icon={<Store className="h-4 w-4" />} label="Nearest market" value={amenities.market} />}
-                {amenities.transport && <AmenityRow icon={<TrainFront className="h-4 w-4" />} label="Public transport" value={amenities.transport} />}
+                {amenities.school && (
+                  <AmenityRow
+                    icon={<School className="h-4 w-4" />}
+                    label="Nearest school"
+                    value={amenities.school}
+                  />
+                )}
+
+                {amenities.hospital && (
+                  <AmenityRow
+                    icon={<Stethoscope className="h-4 w-4" />}
+                    label="Nearest hospital"
+                    value={amenities.hospital}
+                  />
+                )}
+
+                {amenities.market && (
+                  <AmenityRow
+                    icon={<Store className="h-4 w-4" />}
+                    label="Nearest market"
+                    value={amenities.market}
+                  />
+                )}
+
+                {amenities.transport && (
+                  <AmenityRow
+                    icon={<TrainFront className="h-4 w-4" />}
+                    label="Public transport"
+                    value={amenities.transport}
+                  />
+                )}
               </ul>
             </section>
-
-            <section className="rounded-2xl bg-white p-5 ring-1 ring-slate-200">
-              <h2 className="text-lg font-semibold text-slate-900">Contact dealer</h2>
-              <p className="mt-1 text-sm text-slate-500">Reach out about this listing (mock contact).</p>
-              <div className="mt-4 space-y-3">
-                <button type="button" onClick={() => setMessageOpen(true)} className="btn-primary w-full">
-                  Message dealer
-                </button>
-                <a href={`tel:${MOCK_DEALER_PHONE.replace(/\s/g, "")}`} className="btn-secondary flex w-full gap-2">
-                  <Phone className="h-4 w-4" />
-                  Call {MOCK_DEALER_PHONE}
-                </a>
-              </div>
-            </section>
-
-            <Link href="/buy" className="block text-center text-sm font-medium text-brand-700 hover:underline">
-              ← Back to listings
-            </Link>
-          </div>
+          </aside>
         </div>
       </div>
 

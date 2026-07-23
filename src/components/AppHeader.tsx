@@ -75,7 +75,7 @@ function AppHeaderContent({ statusMessage }: Props) {
               <div>
                 <h1 className="text-md font-bold tracking-tight text-neutral-dark leading-none">Homestead</h1>
                 <p className="text-[10px] font-semibold text-emerald mt-1 tracking-wide capitalize">
-                  {activeRegion} · {activeCity}
+                  {activeRegion}
                 </p>
               </div>
             </Link>

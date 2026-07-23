@@ -2,24 +2,26 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { cn, listingGalleryImages } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { PropertyGalleryImagesSlideshow } from "./PropertyGalleryImagesSlideshow";
 
 type Props = {
-  imageUrl: string;
+  imageUrls?: string[];
   title: string;
   className?: string;
   aspectClass?: string;
 };
 
 export function PropertyGallery({
-  imageUrl,
+  imageUrls,
   title,
   className,
   aspectClass = "aspect-[16/10] sm:aspect-[16/9]",
 }: Props) {
-  const images = listingGalleryImages(imageUrl);
+  const images = imageUrls || [];
   const hasMultiple = images.length > 1;
   const [index, setIndex] = useState(0);
+  const [isSlideshowOpen, setIsSlideshowOpen] = useState(false);
   const current = images[index] ?? images[0];
 
   const goPrev = useCallback(() => {
@@ -32,7 +34,7 @@ export function PropertyGallery({
 
   useEffect(() => {
     setIndex(0);
-  }, [imageUrl]);
+  }, [imageUrls]);
 
   useEffect(() => {
     if (!hasMultiple) return;
@@ -44,52 +46,154 @@ export function PropertyGallery({
     return () => window.removeEventListener("keydown", onKey);
   }, [hasMultiple, goPrev, goNext]);
 
-  return (
-    <div className={cn("relative overflow-hidden bg-slate-100", aspectClass, className)}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        key={current}
-        src={current}
-        alt={`${title} — photo ${index + 1}`}
-        className="h-full w-full object-cover"
-      />
+  const openSlideshow = (i:number) => {
+    setIndex(i);
+    setIsSlideshowOpen(true);
+  };
 
-      {hasMultiple && (
-        <>
-          <button
-            type="button"
-            onClick={goPrev}
-            className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/95 p-2.5 text-slate-800 shadow-md transition hover:bg-white"
-            aria-label="Previous image"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-          <button
-            type="button"
-            onClick={goNext}
-            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/95 p-2.5 text-slate-800 shadow-md transition hover:bg-white"
-            aria-label="Next image"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </button>
-          <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5 rounded-full bg-slate-900/50 px-2.5 py-1.5 backdrop-blur-sm">
-            {images.map((_, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={() => setIndex(i)}
-                className={cn(
-                  "h-2 w-2 rounded-full transition",
-                  i === index ? "bg-white" : "bg-white/40 hover:bg-white/70"
-                )}
-                aria-label={`View image ${i + 1}`}
+  return (
+    <div className={cn("relative overflow-hidden bg-slate-100 rounded-xl", className)}>
+
+      {/* Desktop gallery */}
+      <div className="hidden md:block">
+
+        {images.length === 1 && (
+          <div className="h-[520px] overflow-hidden rounded-xl">
+            <div 
+              className="h-[520px] overflow-hidden rounded-xl cursor-pointer"
+              onClick={() => openSlideshow(0)}
+            >
+              <img
+                src={images[0]}
+                alt={`${title} — photo 1`}
+                className="h-full w-full object-cover"
               />
-            ))}
+            </div>
           </div>
-          <span className="absolute left-3 top-3 rounded-lg bg-slate-900/60 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
-            {index + 1} / {images.length}
-          </span>
-        </>
+        )}
+
+
+        {images.length === 2 && (
+          <div className="grid grid-cols-2 gap-2 h-[520px]">
+
+            {images.map((img, i) => (
+              <div
+                key={img}
+                className="overflow-hidden rounded-xl cursor-pointer"
+                onClick={() => openSlideshow(i)}
+              >
+                <img
+                  src={img}
+                  alt={`${title} — photo ${i + 1}`}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            ))}
+
+          </div>
+        )}
+
+
+        {images.length >= 3 && (
+          <div className="grid grid-cols-[2fr_1fr] gap-2 h-[520px]">
+
+            {/* Main image */}
+            <div
+              className="overflow-hidden rounded-xl cursor-pointer"
+              onClick={() => openSlideshow(0)}
+            >
+              <img
+                src={images[0]}
+                alt={`${title} — photo 1`}
+                className="h-full w-full object-cover"
+              />
+            </div>
+
+
+            {/* Right side */}
+            <div className="grid grid-rows-3 gap-2 min-h-0">
+
+              {images.slice(1, 4).map((img, i) => (
+                <div
+                  key={img}
+                  className="relative min-h-0 overflow-hidden rounded-xl cursor-pointer group"
+                  onClick={() => openSlideshow(i + 1)}
+                >
+                  <img
+                    src={img}
+                    alt={`${title} — photo ${i + 2}`}
+                    className="
+                      absolute inset-0
+                      h-full w-full
+                      object-cover
+                      transition-transform
+                      duration-300
+                      group-hover:scale-105
+                    "
+                  />
+
+                  {i === 2 && images.length > 4 && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                      <span className="text-lg font-semibold text-white">
+                        +{images.length - 4} photos
+                      </span>
+                    </div>
+                  )}
+                </div>
+              ))}
+
+            </div>
+
+          </div>
+        )}
+      </div>
+
+
+      {/* Mobile gallery */}
+      <div
+        className={cn(
+          "md:hidden relative overflow-hidden cursor-pointer",
+          aspectClass
+        )}
+        onClick={() => openSlideshow(index)}
+      >
+
+        <img
+          src={current}
+          alt={`${title} — photo ${index + 1}`}
+          className="h-full w-full object-cover"
+        />
+
+        {hasMultiple && (
+          <>
+            <button
+              type="button"
+              onClick={goPrev}
+              className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2"
+            >
+              <ChevronLeft className="h-5 w-5"/>
+            </button>
+
+            <button
+              type="button"
+              onClick={goNext}
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2"
+            >
+              <ChevronRight className="h-5 w-5"/>
+            </button>
+          </>
+        )}
+
+      </div>
+      {isSlideshowOpen && (
+        <PropertyGalleryImagesSlideshow
+          images={images}
+          index={index}
+          title={title}
+          onClose={() => setIsSlideshowOpen(false)}
+          onPrev={goPrev}
+          onNext={goNext}
+        />
       )}
     </div>
   );

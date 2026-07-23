@@ -31,7 +31,7 @@ export function ProtectedRoute({
 
     let shouldRedirect = false;
     let destination = redirectTo || "/login";
-
+    
     if (!isAuthenticated) {
       shouldRedirect = true;
       // For unauthenticated, use default redirectTo or login
